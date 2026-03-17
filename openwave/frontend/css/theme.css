@@ -1,0 +1,55 @@
+/* ══ Light Theme (default) ═══════════════════════════════════════════════════ */
+:root {
+  --accent:            #2AABEE;
+  --accent-secondary:  #4FC3F7;
+  --bg-primary:        #ffffff;
+  --bg-secondary:      #f4f4f5;
+  --sidebar-bg:        #ffffff;
+  --header-bg:         #ffffff;
+  --chat-bg:           #DCDEE0;
+  --input-bg:          #f0f0f0;
+  --hover:             #f0f0f0;
+  --active-chat:       #E8F4FD;
+  --border:            #e0e0e0;
+  --border-subtle:     rgba(0,0,0,.05);
+  --text-primary:      #0a0a0a;
+  --text-secondary:    #4a4a4a;
+  --text-muted:        #999;
+  --bubble-in:         #ffffff;
+  --bubble-in-text:    #0a0a0a;
+  --bubble-out:        #EFFDDE;
+  --bubble-out-text:   #0a0a0a;
+  --bubble-meta:       rgba(0,0,0,.45);
+  --date-badge:        rgba(255,255,255,.8);
+  --date-text:         #555;
+  --online:            #2dc653;
+  --danger:            #e53935;
+}
+
+/* ══ Dark Theme ═══════════════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  --accent:            #2AABEE;
+  --accent-secondary:  #64B5F6;
+  --bg-primary:        #17212B;
+  --bg-secondary:      #1E2C3A;
+  --sidebar-bg:        #17212B;
+  --header-bg:         #1E2C3A;
+  --chat-bg:           #0E1621;
+  --input-bg:          #1E2C3A;
+  --hover:             #1E2C3A;
+  --active-chat:       #2B5278;
+  --border:            rgba(255,255,255,.08);
+  --border-subtle:     rgba(255,255,255,.04);
+  --text-primary:      #FFFFFF;
+  --text-secondary:    #a0b3c1;
+  --text-muted:        #5f7e92;
+  --bubble-in:         #182533;
+  --bubble-in-text:    #FFFFFF;
+  --bubble-out:        #2B5278;
+  --bubble-out-text:   #FFFFFF;
+  --bubble-meta:       rgba(255,255,255,.45);
+  --date-badge:        rgba(30,44,58,.9);
+  --date-text:         #8a9ab0;
+  --online:            #2dc653;
+  --danger:            #ef5350;
+}
