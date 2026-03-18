@@ -53,10 +53,17 @@ app.get('/health', (req, res) => {
 });
 
 // ── Serve frontend (SPA — all unknown paths → index.html) ────────────────────
-const FRONTEND = path.join(__dirname, '..', 'frontend');
+// Check both: local dev (../frontend) and Docker (./frontend)
+const FRONTEND_DEV    = path.join(__dirname, '..', 'frontend');
+const FRONTEND_DOCKER = path.join(__dirname, 'frontend');
+const FRONTEND = fs.existsSync(FRONTEND_DEV) ? FRONTEND_DEV : FRONTEND_DOCKER;
+console.log('Frontend path:', FRONTEND, '| exists:', fs.existsSync(FRONTEND));
 if (fs.existsSync(FRONTEND)) {
   app.use(express.static(FRONTEND));
   app.get('*', (req, res) => res.sendFile(path.join(FRONTEND, 'index.html')));
+} else {
+  console.error('ERROR: Frontend folder not found!');
+  app.get('*', (req, res) => res.status(404).send('Frontend not found. Check deployment.'));
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
