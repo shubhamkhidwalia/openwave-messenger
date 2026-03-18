@@ -1,254 +1,194 @@
 const router = require('express').Router();
 const { v4: uuidv4 } = require('uuid');
-const { stmts } = require('../db');
+const { q } = require('../db');
 const { authMiddleware } = require('../middleware/auth');
 const { broadcast, sendToUser } = require('../ws');
 
 router.use(authMiddleware);
 
-// ── Users ────────────────────────────────────────────────────────────────────
-
-// GET /api/users/search?q=...
-router.get('/users/search', (req, res) => {
-  const q = `%${req.query.q || ''}%`;
-  const users = stmts.searchUsers.all(q, q, req.user.id);
+// ── Users ─────────────────────────────────────────────────────────────────────
+router.get('/users/search', async (req, res) => {
+  const pattern = `%${req.query.q || ''}%`;
+  const users = await q.searchUsers(pattern, pattern, req.user.id);
   res.json({ users });
 });
 
-// GET /api/users/:id
-router.get('/users/:id', (req, res) => {
-  const user = stmts.getUserById.get(req.params.id);
+router.get('/users/:id', async (req, res) => {
+  const user = await q.getUserById(req.params.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
-  const safe = { ...user };
-  delete safe.password_hash;
+  const safe = { ...user }; delete safe.password_hash;
   res.json({ user: safe });
 });
 
-// PATCH /api/users/me
-router.patch('/users/me', (req, res) => {
+router.patch('/users/me', async (req, res) => {
   const { display_name, bio, avatar } = req.body;
-  stmts.updateProfile.run({
-    id: req.user.id,
-    display_name: display_name || req.user.display_name,
-    bio: bio !== undefined ? bio : req.user.bio,
-    avatar: avatar !== undefined ? avatar : req.user.avatar,
-  });
-  const updated = stmts.getUserById.get(req.user.id);
+  await q.updateProfile(
+    display_name || req.user.display_name,
+    bio !== undefined ? bio : req.user.bio,
+    avatar !== undefined ? avatar : req.user.avatar,
+    req.user.id
+  );
+  const updated = await q.getUserById(req.user.id);
   delete updated.password_hash;
-  // Broadcast profile update to all connected
   broadcast({ type: 'user_updated', user: updated });
   res.json({ user: updated });
 });
 
 // ── Contacts ─────────────────────────────────────────────────────────────────
-
-// GET /api/contacts
-router.get('/contacts', (req, res) => {
-  const contacts = stmts.getContacts.all(req.user.id);
+router.get('/contacts', async (req, res) => {
+  const contacts = await q.getContacts(req.user.id);
   res.json({ contacts });
 });
 
-// POST /api/contacts
-router.post('/contacts', (req, res) => {
+router.post('/contacts', async (req, res) => {
   const { user_id } = req.body;
   if (!user_id) return res.status(400).json({ error: 'user_id required' });
-  const target = stmts.getUserById.get(user_id);
+  const target = await q.getUserById(user_id);
   if (!target) return res.status(404).json({ error: 'User not found' });
-  stmts.addContact.run(req.user.id, user_id);
+  await q.addContact(req.user.id, user_id);
   res.json({ ok: true });
 });
 
 // ── Chats ─────────────────────────────────────────────────────────────────────
-
-// GET /api/chats
-router.get('/chats', (req, res) => {
-  const chats = stmts.getUserChats.all(req.user.id, req.user.id, req.user.id);
-  // For direct chats, inject the other user's info
-  const enriched = chats.map(chat => {
+router.get('/chats', async (req, res) => {
+  const chats = await q.getUserChats(req.user.id);
+  const enriched = await Promise.all(chats.map(async chat => {
     if (chat.type === 'direct') {
-      const members = stmts.getChatMembers.all(chat.id);
-      const other = members.find(m => m.id !== req.user.id);
-      if (other) {
-        return { ...chat, peer: other };
-      }
+      const members = await q.getChatMembers(chat.id);
+      const peer = members.find(m => m.id !== req.user.id);
+      return { ...chat, peer };
     }
-    return { ...chat, members: stmts.getChatMembers.all(chat.id) };
-  });
+    return { ...chat, members: await q.getChatMembers(chat.id) };
+  }));
   res.json({ chats: enriched });
 });
 
-// POST /api/chats/direct — open or find direct chat with a user
-router.post('/chats/direct', (req, res) => {
+router.post('/chats/direct', async (req, res) => {
   const { user_id } = req.body;
   if (!user_id) return res.status(400).json({ error: 'user_id required' });
   if (user_id === req.user.id) return res.status(400).json({ error: 'Cannot chat with yourself' });
 
-  const target = stmts.getUserById.get(user_id);
+  const target = await q.getUserById(user_id);
   if (!target) return res.status(404).json({ error: 'User not found' });
 
-  // Check existing
-  const existing = stmts.getDirectChat.get(req.user.id, user_id);
+  const existing = await q.getDirectChat(req.user.id, user_id);
   if (existing) {
-    const chat = stmts.getChatById.get(existing.id);
-    const peer = stmts.getUserById.get(user_id);
+    const chat = await q.getChatById(existing.id);
+    const peer = await q.getUserById(user_id);
     delete peer.password_hash;
     return res.json({ chat: { ...chat, peer, type: 'direct' } });
   }
 
-  // Create new direct chat
   const chatId = uuidv4();
-  stmts.createChat.run({
-    id: chatId, type: 'direct',
-    name: null, avatar: '', description: '',
-    created_by: req.user.id
-  });
-  stmts.addMember.run({ chat_id: chatId, user_id: req.user.id, role: 'member' });
-  stmts.addMember.run({ chat_id: chatId, user_id, role: 'member' });
+  await q.createChat(chatId, 'direct', null, '', '', req.user.id);
+  await q.addMember(chatId, req.user.id, 'member');
+  await q.addMember(chatId, user_id, 'member');
 
-  const chat = stmts.getChatById.get(chatId);
-  const peer = stmts.getUserById.get(user_id);
+  const chat = await q.getChatById(chatId);
+  const peer = await q.getUserById(user_id);
   delete peer.password_hash;
 
-  // Notify the other user
-  sendToUser(user_id, { type: 'chat_created', chat: { ...chat, peer: { id: req.user.id, ...req.user, password_hash: undefined } } });
-
+  sendToUser(user_id, { type: 'chat_created', chat: { ...chat, peer: { ...req.user, password_hash: undefined } } });
   res.status(201).json({ chat: { ...chat, peer, type: 'direct' } });
 });
 
-// POST /api/chats/group — create group
-router.post('/chats/group', (req, res) => {
+router.post('/chats/group', async (req, res) => {
   const { name, description, member_ids } = req.body;
   if (!name) return res.status(400).json({ error: 'name required' });
 
   const chatId = uuidv4();
-  stmts.createChat.run({
-    id: chatId, type: 'group',
-    name, avatar: '', description: description || '',
-    created_by: req.user.id
-  });
-  stmts.addMember.run({ chat_id: chatId, user_id: req.user.id, role: 'owner' });
+  await q.createChat(chatId, 'group', name, '', description||'', req.user.id);
+  await q.addMember(chatId, req.user.id, 'owner');
 
-  const members = [req.user.id, ...(member_ids || []).filter(id => id !== req.user.id)];
-  for (const uid of members.slice(1)) {
-    const u = stmts.getUserById.get(uid);
-    if (u) stmts.addMember.run({ chat_id: chatId, user_id: uid, role: 'member' });
+  for (const uid of (member_ids||[]).filter(id => id !== req.user.id)) {
+    const u = await q.getUserById(uid);
+    if (u) await q.addMember(chatId, uid, 'member');
   }
 
-  const chat = stmts.getChatById.get(chatId);
-  const chatMembers = stmts.getChatMembers.all(chatId);
+  const chat = await q.getChatById(chatId);
+  const chatMembers = await q.getChatMembers(chatId);
 
-  // System message
   const sysId = uuidv4();
-  stmts.insertMessage.run({
-    id: sysId, chat_id: chatId, sender_id: req.user.id,
-    type: 'system', content: `${req.user.display_name} created the group`,
-    reply_to: null
-  });
-  stmts.updateChatLastMsg.run(Date.now(), chatId);
+  await q.insertMessage(sysId, chatId, req.user.id, 'system', `${req.user.display_name} created the group`, null);
+  await q.updateChatLastMsg(Date.now(), chatId);
 
-  // Notify all members
   for (const m of chatMembers) {
-    if (m.id !== req.user.id) {
+    if (m.id !== req.user.id)
       sendToUser(m.id, { type: 'chat_created', chat: { ...chat, members: chatMembers } });
-    }
   }
 
   res.status(201).json({ chat: { ...chat, members: chatMembers } });
 });
 
-// GET /api/chats/:id/members
-router.get('/chats/:id/members', (req, res) => {
-  if (!stmts.isMember.get(req.params.id, req.user.id)) {
+router.get('/chats/:id/members', async (req, res) => {
+  if (!await q.isMember(req.params.id, req.user.id))
     return res.status(403).json({ error: 'Not a member' });
-  }
-  const members = stmts.getChatMembers.all(req.params.id);
+  const members = await q.getChatMembers(req.params.id);
   res.json({ members });
 });
 
-// POST /api/chats/:id/members — add member to group
-router.post('/chats/:id/members', (req, res) => {
-  const chat = stmts.getChatById.get(req.params.id);
+router.post('/chats/:id/members', async (req, res) => {
+  const chat = await q.getChatById(req.params.id);
   if (!chat || chat.type !== 'group') return res.status(400).json({ error: 'Invalid group' });
   const { user_id } = req.body;
-  stmts.addMember.run({ chat_id: req.params.id, user_id, role: 'member' });
-  const u = stmts.getUserById.get(user_id);
+  await q.addMember(req.params.id, user_id, 'member');
+  const u = await q.getUserById(user_id);
   broadcast({ type: 'member_added', chat_id: req.params.id, user: u }, req.params.id);
   res.json({ ok: true });
 });
 
 // ── Messages ──────────────────────────────────────────────────────────────────
-
-// GET /api/chats/:id/messages?limit=50&offset=0
-router.get('/chats/:id/messages', (req, res) => {
-  if (!stmts.isMember.get(req.params.id, req.user.id)) {
+router.get('/chats/:id/messages', async (req, res) => {
+  if (!await q.isMember(req.params.id, req.user.id))
     return res.status(403).json({ error: 'Not a member' });
-  }
-  const limit = Math.min(parseInt(req.query.limit) || 50, 100);
-  const offset = parseInt(req.query.offset) || 0;
-  const msgs = stmts.getMessages.all(req.params.id, limit, offset);
+  const limit  = Math.min(parseInt(req.query.limit)||50, 100);
+  const offset = parseInt(req.query.offset)||0;
+  const msgs = await q.getMessages(req.params.id, limit, offset);
   res.json({ messages: msgs.reverse() });
 });
 
-// POST /api/chats/:id/messages
-router.post('/chats/:id/messages', (req, res) => {
-  if (!stmts.isMember.get(req.params.id, req.user.id)) {
+router.post('/chats/:id/messages', async (req, res) => {
+  if (!await q.isMember(req.params.id, req.user.id))
     return res.status(403).json({ error: 'Not a member' });
-  }
-  const { content, type = 'text', reply_to } = req.body;
+  const { content, type='text', reply_to } = req.body;
   if (!content) return res.status(400).json({ error: 'content required' });
 
   const id = uuidv4();
-  stmts.insertMessage.run({
-    id, chat_id: req.params.id,
-    sender_id: req.user.id,
-    type, content,
-    reply_to: reply_to || null
-  });
-  stmts.updateChatLastMsg.run(Date.now(), req.params.id);
+  await q.insertMessage(id, req.params.id, req.user.id, type, content, reply_to||null);
+  await q.updateChatLastMsg(Date.now(), req.params.id);
 
-  const msg = stmts.getMessage.get(id);
-
-  // Push to all members via WebSocket
-  const members = stmts.getChatMembers.all(req.params.id);
+  const msg = await q.getMessage(id);
+  const members = await q.getChatMembers(req.params.id);
   for (const m of members) {
-    if (m.id !== req.user.id) {
-      stmts.upsertStatus.run(id, m.id, 'delivered');
-    }
+    if (m.id !== req.user.id) await q.upsertStatus(id, m.id, 'delivered');
   }
-  broadcast({ type: 'new_message', message: msg, chat_id: req.params.id }, req.params.id, req.user.id);
 
+  broadcast({ type: 'new_message', message: msg, chat_id: req.params.id }, req.params.id, req.user.id);
   res.status(201).json({ message: msg });
 });
 
-// PATCH /api/messages/:id — edit
-router.patch('/messages/:id', (req, res) => {
+router.patch('/messages/:id', async (req, res) => {
   const { content } = req.body;
-  stmts.editMessage.run(content, req.params.id, req.user.id);
-  const msg = stmts.getMessage.get(req.params.id);
+  await q.editMessage(content, req.params.id, req.user.id);
+  const msg = await q.getMessage(req.params.id);
   if (!msg) return res.status(404).json({ error: 'Not found' });
   broadcast({ type: 'message_edited', message: msg, chat_id: msg.chat_id });
   res.json({ message: msg });
 });
 
-// DELETE /api/messages/:id
-router.delete('/messages/:id', (req, res) => {
-  const msg = stmts.getMessage.get(req.params.id);
+router.delete('/messages/:id', async (req, res) => {
+  const msg = await q.getMessage(req.params.id);
   if (!msg) return res.status(404).json({ error: 'Not found' });
-  stmts.deleteMessage.run(req.params.id, req.user.id);
+  await q.deleteMessage(req.params.id, req.user.id);
   broadcast({ type: 'message_deleted', message_id: req.params.id, chat_id: msg.chat_id });
   res.json({ ok: true });
 });
 
-// POST /api/messages/:id/read
-router.post('/messages/:id/read', (req, res) => {
-  const msg = stmts.getMessage.get(req.params.id);
+router.post('/messages/:id/read', async (req, res) => {
+  const msg = await q.getMessage(req.params.id);
   if (!msg) return res.status(404).json({ error: 'Not found' });
-  stmts.upsertStatus.run(req.params.id, req.user.id, 'read');
-  // Notify sender
-  sendToUser(msg.sender_id, {
-    type: 'message_read', message_id: req.params.id,
-    reader_id: req.user.id, chat_id: msg.chat_id
-  });
+  await q.upsertStatus(req.params.id, req.user.id, 'read');
+  sendToUser(msg.sender_id, { type: 'message_read', message_id: req.params.id, reader_id: req.user.id, chat_id: msg.chat_id });
   res.json({ ok: true });
 });
 

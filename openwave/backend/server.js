@@ -1,80 +1,87 @@
 require('dotenv').config();
 const express = require('express');
-const http = require('http');
-const cors = require('cors');
-const path = require('path');
-const multer = require('multer');
-const fs = require('fs');
+const http    = require('http');
+const cors    = require('cors');
+const path    = require('path');
+const fs      = require('fs');
 
-const app = express();
+const app    = express();
 const server = http.createServer(app);
 
-// WebSocket setup (must be before routes)
+// WebSocket (must attach before routes)
 const ws = require('./ws');
 ws.setup(server);
 
-// ── Middleware ────────────────────────────────────────────────────────────────
+// ── Core middleware ───────────────────────────────────────────────────────────
 app.use(cors({
   origin: process.env.CLIENT_ORIGIN || '*',
-  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET','POST','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','x-admin-secret'],
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ── Media uploads ─────────────────────────────────────────────────────────────
-const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(__dirname, 'data', 'uploads');
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+// ── File uploads (Cloudinary in prod, local disk in dev) ──────────────────────
+const { uploadMiddleware } = require('./upload');
+uploadMiddleware(app);
 
-const upload = multer({
-  dest: UPLOADS_DIR,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
-  fileFilter: (req, file, cb) => {
-    const allowed = ['image/jpeg','image/png','image/gif','image/webp',
-                     'video/mp4','audio/mpeg','audio/ogg','application/pdf',
-                     'application/zip','text/plain'];
-    cb(null, allowed.includes(file.mimetype));
-  }
+// ── API routes ────────────────────────────────────────────────────────────────
+app.use('/api/auth',  require('./routes/auth'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api',       require('./routes/api'));
+
+// ── Validate invite (called by frontend before showing register form) ─────────
+const { q, initSchema } = require('./db');
+app.get('/api/invite/:code', async (req, res) => {
+  const invite = await q.getInvite(req.params.code).catch(() => null);
+  if (!invite)            return res.status(404).json({ valid: false, error: 'Invalid invite code' });
+  if (invite.used_by)     return res.status(410).json({ valid: false, error: 'This invite has already been used' });
+  if (invite.expires_at && invite.expires_at < Math.floor(Date.now()/1000))
+                          return res.status(410).json({ valid: false, error: 'This invite has expired' });
+  res.json({ valid: true });
 });
-
-const { authMiddleware } = require('./middleware/auth');
-
-app.post('/api/upload', authMiddleware, upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file' });
-  const url = `/media/${path.basename(req.file.path)}`;
-  res.json({ url, name: req.file.originalname, size: req.file.size, mime: req.file.mimetype });
-});
-
-app.use('/media', express.static(UPLOADS_DIR));
-
-// ── API Routes ────────────────────────────────────────────────────────────────
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api', require('./routes/api'));
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', ts: Date.now(), online: ws.getOnlineUsers().length });
+  res.json({
+    status:   'ok',
+    ts:       Date.now(),
+    online:   ws.getOnlineUsers().length,
+    storage:  process.env.CLOUDINARY_NAME ? 'cloudinary' : 'local',
+    database: process.env.TURSO_URL && !process.env.TURSO_URL.startsWith('file:') ? 'turso' : 'local-sqlite',
+  });
 });
 
-// ── Serve frontend (production) ───────────────────────────────────────────────
+// ── Serve frontend (SPA — all unknown paths → index.html) ────────────────────
 const FRONTEND = path.join(__dirname, '..', 'frontend');
 if (fs.existsSync(FRONTEND)) {
   app.use(express.static(FRONTEND));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(FRONTEND, 'index.html'));
-  });
+  app.get('*', (req, res) => res.sendFile(path.join(FRONTEND, 'index.html')));
 }
 
-// ── Start ─────────────────────────────────────────────────────────────────────
+// ── Boot ──────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => {
-  console.log(`
-  ╔═══════════════════════════════════════╗
-  ║   🌊  OpenWave Messenger              ║
-  ║   Server  →  http://localhost:${PORT}   ║
-  ║   WS      →  ws://localhost:${PORT}/ws  ║
-  ╚═══════════════════════════════════════╝
-  `);
-});
 
+async function start() {
+  try {
+    await initSchema();
+    const dbMode = process.env.TURSO_URL && !process.env.TURSO_URL.startsWith('file:') ? 'Turso Cloud ☁️ ' : 'Local SQLite  ';
+    const fileMode = process.env.CLOUDINARY_NAME ? 'Cloudinary ☁️ ' : 'Local disk    ';
+    server.listen(PORT, () => {
+      console.log(`
+  ╔══════════════════════════════════════════╗
+  ║  🌊  OpenWave Messenger                  ║
+  ║  URL      →  http://localhost:${PORT}      ║
+  ║  Database →  ${dbMode}             ║
+  ║  Files    →  ${fileMode}             ║
+  ╚══════════════════════════════════════════╝
+      `);
+    });
+  } catch (err) {
+    console.error('❌ Failed to start:', err.message);
+    process.exit(1);
+  }
+}
+
+start();
 module.exports = { app, server };
