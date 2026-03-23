@@ -2,151 +2,117 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OpenWave">
+  <meta name="theme-color" content="#2AABEE">
   <title>OpenWave</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌊</text></svg>">
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/theme.css">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
 
-<!-- ══ Auth Screen ══ -->
+<!-- ══ Auth ══════════════════════════════════════════════════════════════ -->
 <div id="auth-screen" class="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">🌊</div>
     <h1 class="auth-title">OpenWave</h1>
     <p class="auth-sub">Fast. Open. Secure.</p>
-
-    <div id="invite-banner" style="display:none;background:var(--color-background-success);color:var(--color-text-success);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:1rem;text-align:center"></div>
+    <div id="invite-banner" class="invite-banner"></div>
     <div class="auth-tabs">
       <button class="auth-tab active" data-tab="login">Sign In</button>
       <button class="auth-tab" data-tab="register">Register</button>
     </div>
-
     <form id="login-form" class="auth-form active">
-      <div class="field-group">
-        <label>Username</label>
-        <input type="text" id="login-username" placeholder="your_username" autocomplete="username">
-      </div>
-      <div class="field-group">
-        <label>Password</label>
-        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
-      </div>
+      <div class="field-group"><label>Username</label><input type="text" id="login-username" placeholder="your_username" autocomplete="username" autocapitalize="none"></div>
+      <div class="field-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"></div>
       <div class="auth-error" id="login-error"></div>
       <button type="submit" class="btn-primary">Sign In</button>
     </form>
-
     <form id="register-form" class="auth-form">
-      <div class="field-group">
-        <label>Display Name</label>
-        <input type="text" id="reg-name" placeholder="Your Name">
-      </div>
-      <div class="field-group">
-        <label>Username</label>
-        <input type="text" id="reg-username" placeholder="username (letters, numbers, _)">
-      </div>
-      <div class="field-group">
-        <label>Phone <span class="optional">(optional)</span></label>
-        <input type="tel" id="reg-phone" placeholder="+1 555 000 0000">
-      </div>
-      <div class="field-group">
-        <label>Password</label>
-        <input type="password" id="reg-password" placeholder="min 6 characters">
-      </div>
-      <div class="field-group" id="invite-field-wrap">
-        <label>Invite Code <span class="optional">(required)</span></label>
-        <input type="text" id="reg-invite" placeholder="Paste invite code here" autocomplete="off">
-      </div>
+      <div class="field-group"><label>Display Name</label><input type="text" id="reg-name" placeholder="Your Name" autocomplete="name"></div>
+      <div class="field-group"><label>Username</label><input type="text" id="reg-username" placeholder="username" autocomplete="off" autocapitalize="none"></div>
+      <div class="field-group"><label>Phone <span class="optional">(optional)</span></label><input type="tel" id="reg-phone" placeholder="+91 98765 43210"></div>
+      <div class="field-group"><label>Password</label><input type="password" id="reg-password" placeholder="min 6 characters" autocomplete="new-password"></div>
+      <div class="field-group"><label>Invite Code <span class="optional">*required*</span></label><input type="text" id="reg-invite" placeholder="Paste invite code here" autocomplete="off" autocapitalize="none"></div>
       <div class="auth-error" id="reg-error"></div>
       <button type="submit" class="btn-primary">Create Account</button>
     </form>
   </div>
 </div>
 
-<!-- ══ Main App ══ -->
+<!-- ══ App ════════════════════════════════════════════════════════════════ -->
 <div id="app" class="app hidden">
 
   <!-- Sidebar -->
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-header">
-      <button class="icon-btn" id="menu-btn" title="Menu">☰</button>
+      <button class="icon-btn" id="menu-btn">☰</button>
       <span class="sidebar-title">OpenWave</span>
       <div class="sidebar-actions">
-        <button class="icon-btn" id="compose-btn" title="New message">✏</button>
-        <button class="icon-btn theme-btn" id="theme-btn" title="Toggle theme">◐</button>
+        <button class="icon-btn" id="compose-btn" title="New chat">✏</button>
+        <button class="icon-btn" id="theme-btn">◐</button>
       </div>
     </div>
-
     <div class="search-bar">
       <span class="search-icon">⌕</span>
-      <input type="text" id="search-input" placeholder="Search contacts…">
+      <input type="text" id="search-input" placeholder="Search…">
       <button class="clear-search hidden" id="clear-search">✕</button>
     </div>
-
     <div id="chat-list" class="chat-list"></div>
   </aside>
 
+  <!-- Menu Overlay -->
+  <div id="menu-overlay" class="menu-overlay" onclick="App.closeMenu()"></div>
+
   <!-- Menu Drawer -->
-  <div id="menu-drawer" class="menu-drawer hidden">
+  <div id="menu-drawer" class="menu-drawer">
     <div class="menu-profile">
       <div class="menu-avatar" id="menu-avatar"></div>
-      <div class="menu-user-info">
+      <div>
         <div class="menu-display-name" id="menu-display-name"></div>
         <div class="menu-username" id="menu-username"></div>
       </div>
     </div>
     <div class="menu-items">
       <button class="menu-item" onclick="App.showContacts()">👥 Contacts</button>
-      <button class="menu-item" onclick="App.showNewGroup()">👥 New Group</button>
-      <button class="menu-item admin-only hidden" id="menu-invites-btn" onclick="App.showInvites()">🔗 Invite Links</button>
+      <button class="menu-item" onclick="App.showNewGroup()">👫 New Group</button>
       <button class="menu-item" onclick="App.showSettings()">⚙ Settings</button>
-      <button class="menu-item" id="admin-menu-item" style="display:none" onclick="App.showAdmin()">🔑 Invite Manager</button>
       <div class="menu-divider"></div>
       <button class="menu-item danger" onclick="App.logout()">↩ Sign Out</button>
     </div>
   </div>
-  <div id="menu-overlay" class="menu-overlay hidden" onclick="App.closeMenu()"></div>
 
   <!-- Chat Area -->
   <main id="chat-area" class="chat-area">
-
-    <!-- Welcome splash -->
     <div id="splash" class="splash">
       <div class="splash-icon">🌊</div>
       <h2>OpenWave</h2>
-      <p>Select a chat or search for someone to message</p>
+      <p>Select a chat to start messaging</p>
     </div>
-
-    <!-- Active Chat -->
     <div id="chat-view" class="chat-view hidden">
       <div class="chat-header">
-        <button class="icon-btn back-btn" id="back-btn" onclick="App.closeChat()">←</button>
+        <button class="back-btn" onclick="App.closeChat()">‹</button>
         <div class="chat-header-avatar" id="chat-header-avatar" onclick="App.showChatInfo()"></div>
         <div class="chat-header-info" onclick="App.showChatInfo()">
           <div class="chat-header-name" id="chat-header-name"></div>
           <div class="chat-header-status" id="chat-header-status"></div>
         </div>
         <div class="chat-header-actions">
-          <button class="icon-btn" id="search-in-chat-btn" title="Search in chat">⌕</button>
-          <button class="icon-btn" id="chat-menu-btn" title="More">⋮</button>
+          <button class="icon-btn" id="chat-menu-btn">⋮</button>
         </div>
       </div>
-
-      <!-- Context menu for chat -->
       <div id="chat-dropdown" class="dropdown hidden">
         <div class="dropdown-item" onclick="App.clearChatHistory()">Clear history</div>
         <div class="dropdown-item danger" onclick="App.deleteChat()">Delete chat</div>
       </div>
-
       <div id="messages-list" class="messages-list"></div>
-
-      <!-- Typing indicator -->
       <div id="typing-banner" class="typing-banner hidden">
         <div class="typing-dots"><span></span><span></span><span></span></div>
         <span id="typing-text">typing…</span>
       </div>
-
-      <!-- Reply preview -->
       <div id="reply-preview" class="reply-preview hidden">
         <div class="reply-bar"></div>
         <div class="reply-content">
@@ -155,179 +121,104 @@
         </div>
         <button class="icon-btn" onclick="App.cancelReply()">✕</button>
       </div>
-
       <div class="input-area">
-        <button class="icon-btn attach-btn" id="attach-btn" title="Attach file">📎</button>
+        <button class="attach-btn" id="attach-btn">📎</button>
         <input type="file" id="file-input" hidden accept="image/*,video/*,audio/*,.pdf,.zip,.txt">
         <div class="input-wrap">
           <textarea id="msg-input" placeholder="Message…" rows="1"></textarea>
         </div>
-        <button class="icon-btn emoji-btn" id="emoji-btn" title="Emoji">😊</button>
-        <button class="send-btn" id="send-btn" title="Send">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
-            <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
-          </svg>
+        <button class="send-btn idle" id="send-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
         </button>
       </div>
     </div>
   </main>
 </div>
 
-<!-- ══ Modals ══ -->
+<!-- ══ Modals ═════════════════════════════════════════════════════════════ -->
 
-<!-- New Chat / Search Users -->
 <div id="modal-new-chat" class="modal hidden">
   <div class="modal-box">
-    <div class="modal-header">
-      <h3>New Message</h3>
-      <button class="icon-btn" onclick="App.closeModal('modal-new-chat')">✕</button>
-    </div>
-    <div class="modal-search">
-      <input type="text" id="user-search-input" placeholder="Search by username…" oninput="App.searchUsers(this.value)">
-    </div>
+    <div class="modal-header"><h3>New Message</h3><button class="icon-btn" onclick="App.closeModal('modal-new-chat')">✕</button></div>
+    <div class="modal-search"><input type="text" id="user-search-input" placeholder="Search by username…" oninput="App.searchUsers(this.value)" autocapitalize="none"></div>
     <div id="user-search-results" class="user-list"></div>
   </div>
 </div>
 
-<!-- New Group -->
 <div id="modal-new-group" class="modal hidden">
   <div class="modal-box">
-    <div class="modal-header">
-      <h3>New Group</h3>
-      <button class="icon-btn" onclick="App.closeModal('modal-new-group')">✕</button>
-    </div>
-    <div class="field-group" style="padding:0 1rem">
-      <label>Group Name</label>
-      <input type="text" id="group-name-input" placeholder="e.g. Team Alpha">
-    </div>
-    <div class="modal-search" style="margin-top:1rem">
-      <input type="text" id="group-user-search" placeholder="Add members…" oninput="App.searchGroupUsers(this.value)">
-    </div>
+    <div class="modal-header"><h3>New Group</h3><button class="icon-btn" onclick="App.closeModal('modal-new-group')">✕</button></div>
+    <div class="modal-search"><input type="text" id="group-name-input" placeholder="Group name…"></div>
+    <div class="modal-search" style="border-top:none"><input type="text" id="group-user-search" placeholder="Add members…" oninput="App.searchGroupUsers(this.value)" autocapitalize="none"></div>
     <div id="selected-members" class="selected-members"></div>
     <div id="group-user-results" class="user-list"></div>
-    <div class="modal-footer">
-      <button class="btn-primary" onclick="App.createGroup()">Create Group</button>
-    </div>
+    <div class="modal-footer"><button class="btn-primary" onclick="App.createGroup()">Create Group</button></div>
   </div>
 </div>
 
-<!-- Chat Info / Profile -->
 <div id="modal-chat-info" class="modal hidden">
-  <div class="modal-box profile-box">
-    <div class="modal-header">
-      <h3 id="info-title">Profile</h3>
-      <button class="icon-btn" onclick="App.closeModal('modal-chat-info')">✕</button>
-    </div>
+  <div class="modal-box">
+    <div class="modal-header"><h3 id="info-title">Profile</h3><button class="icon-btn" onclick="App.closeModal('modal-chat-info')">✕</button></div>
     <div class="profile-header">
       <div class="profile-avatar" id="info-avatar"></div>
       <div class="profile-name" id="info-name"></div>
       <div class="profile-sub" id="info-sub"></div>
     </div>
-    <div class="profile-section" id="info-bio-section">
-      <div class="profile-label">Bio</div>
-      <div class="profile-value" id="info-bio"></div>
-    </div>
+    <div class="profile-section" id="info-bio-section"><div class="profile-label">Bio</div><div class="profile-value" id="info-bio"></div></div>
     <div class="profile-actions" id="info-actions"></div>
   </div>
 </div>
 
-<!-- Settings -->
 <div id="modal-settings" class="modal hidden">
   <div class="modal-box">
-    <div class="modal-header">
-      <h3>Settings</h3>
-      <button class="icon-btn" onclick="App.closeModal('modal-settings')">✕</button>
-    </div>
+    <div class="modal-header"><h3>Settings</h3><button class="icon-btn" onclick="App.closeModal('modal-settings')">✕</button></div>
     <div class="settings-body">
       <div class="settings-avatar-wrap">
         <div class="settings-avatar" id="settings-avatar" onclick="document.getElementById('avatar-file').click()"></div>
-        <div class="settings-avatar-hint">Tap to change</div>
+        <div class="settings-avatar-hint">Tap to change photo</div>
         <input type="file" id="avatar-file" hidden accept="image/*" onchange="App.uploadAvatar(this)">
       </div>
-      <div class="field-group">
-        <label>Display Name</label>
-        <input type="text" id="settings-name">
-      </div>
-      <div class="field-group">
-        <label>Bio</label>
-        <textarea id="settings-bio" rows="3" placeholder="Something about you…"></textarea>
-      </div>
-      <div class="settings-info">
-        <span id="settings-username-display"></span>
-      </div>
-      <button class="btn-primary" onclick="App.saveSettings()">Save</button>
+      <div class="field-group"><label>Display Name</label><input type="text" id="settings-name"></div>
+      <div class="field-group"><label>Bio</label><textarea id="settings-bio" rows="3" placeholder="Something about you…"></textarea></div>
+      <div class="settings-info" id="settings-username-display"></div>
+      <button class="btn-primary" onclick="App.saveSettings()">Save Changes</button>
     </div>
   </div>
 </div>
 
-<!-- Invite Manager Modal (admin only) -->
-<div id="modal-invites" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>Invite Links</h3>
-      <button class="icon-btn" onclick="App.closeModal('modal-invites')">✕</button>
-    </div>
-    <div style="padding:1rem">
-      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6">
-        Generate one-time invite links. Share them with people you want to invite. Each link can only be used once.
-      </p>
-      <div style="display:flex;gap:8px;margin-bottom:1rem;align-items:center">
-        <select id="invite-expiry" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-primary);font-size:13px">
-          <option value="1">Expires in 1 day</option>
-          <option value="7" selected>Expires in 7 days</option>
-          <option value="30">Expires in 30 days</option>
-          <option value="0">Never expires</option>
-        </select>
-        <button class="btn-primary" style="width:auto;padding:8px 16px;margin:0" onclick="App.generateInvite()">Generate</button>
-      </div>
-      <div id="invite-result" class="hidden" style="background:var(--active-chat);border-radius:8px;padding:10px 12px;margin-bottom:1rem">
-        <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:4px">Share this link — works once only:</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <code id="invite-link-text" style="font-size:12px;word-break:break-all;flex:1;color:var(--text-primary)"></code>
-          <button onclick="App.copyInviteLink()" style="padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--input-bg);font-size:12px;cursor:pointer;color:var(--text-primary);flex-shrink:0">Copy</button>
-        </div>
-      </div>
-      <div style="font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">Your invite links</div>
-      <div id="invite-list" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Admin Modal -->
-<div id="modal-admin" class="modal hidden">
-  <div class="modal-box" style="max-width:520px">
-    <div class="modal-header">
-      <h3>Invite Manager</h3>
-      <button class="icon-btn" onclick="App.closeModal('modal-admin')">✕</button>
-    </div>
-    <div style="padding:1rem;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-      <div class="field-group" style="flex:1;min-width:140px;margin-bottom:0">
-        <label>Label (optional)</label>
-        <input type="text" id="invite-label" placeholder="e.g. Friend group">
-      </div>
-      <div class="field-group" style="width:90px;margin-bottom:0">
-        <label>Max uses</label>
-        <input type="number" id="invite-max-uses" value="1" min="1" max="999">
-      </div>
-      <div class="field-group" style="width:100px;margin-bottom:0">
-        <label>Expires (days)</label>
-        <input type="number" id="invite-expires" placeholder="Never" min="1">
-      </div>
-      <button class="btn-primary" style="width:auto;padding:10px 18px" onclick="App.createInvite()">Generate</button>
-    </div>
-    <div id="invite-list" style="overflow-y:auto;max-height:340px;padding:0.5rem 0"></div>
-    <div style="padding:0.75rem 1rem;border-top:1px solid var(--border);font-size:12px;color:var(--text-muted)">
-      Share the full link — recipients paste the code on the Register screen.
-    </div>
-  </div>
+<!-- Install Banner (PWA) -->
+<div id="install-banner" class="install-banner">
+  <span>📲 Add OpenWave to your home screen</span>
+  <button id="install-btn">Install</button>
+  <button class="dismiss" onclick="document.getElementById('install-banner').classList.remove('show')">✕</button>
 </div>
 
 <!-- Toast -->
 <div id="toast" class="toast hidden"></div>
 
-<script src="js/api.js"></script>
-<script src="js/ws.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/app.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/ws.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/app.js"></script>
+<script>
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  setTimeout(() => document.getElementById('install-banner').classList.add('show'), 3000);
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+});
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
 </body>
 </html>

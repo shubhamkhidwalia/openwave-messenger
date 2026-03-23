@@ -1,55 +1,57 @@
-/* ══ Light Theme (default) ═══════════════════════════════════════════════════ */
-:root {
-  --accent:            #2AABEE;
-  --accent-secondary:  #4FC3F7;
-  --bg-primary:        #ffffff;
-  --bg-secondary:      #f4f4f5;
-  --sidebar-bg:        #ffffff;
-  --header-bg:         #ffffff;
-  --chat-bg:           #DCDEE0;
-  --input-bg:          #f0f0f0;
-  --hover:             #f0f0f0;
-  --active-chat:       #E8F4FD;
-  --border:            #e0e0e0;
-  --border-subtle:     rgba(0,0,0,.05);
-  --text-primary:      #0a0a0a;
-  --text-secondary:    #4a4a4a;
-  --text-muted:        #999;
-  --bubble-in:         #ffffff;
-  --bubble-in-text:    #0a0a0a;
-  --bubble-out:        #EFFDDE;
-  --bubble-out-text:   #0a0a0a;
-  --bubble-meta:       rgba(0,0,0,.45);
-  --date-badge:        rgba(255,255,255,.8);
-  --date-text:         #555;
-  --online:            #2dc653;
-  --danger:            #e53935;
+/* ══ Light Theme ════════════════════════════════════════════════════════════ */
+:root{
+  --accent:        #2AABEE;
+  --accent-light:  #64C8F5;
+  --bg:            #F0F2F5;
+  --sidebar:       #FFFFFF;
+  --header:        #FFFFFF;
+  --chat-bg:       #DAD3CC;
+  --card:          #FFFFFF;
+  --input:         #F0F2F5;
+  --hover:         #F5F5F5;
+  --active:        #E8F4FD;
+  --border:        #E8E8E8;
+  --border-subtle: rgba(0,0,0,.05);
+  --text:          #111111;
+  --muted:         #8A8A8A;
+  --bubble-in:     #FFFFFF;
+  --bubble-in-text:#111111;
+  --bubble-out:    #D9FDD3;
+  --bubble-out-text:#111111;
+  --bubble-meta:   #667781;
+  --date-bg:       rgba(255,255,255,.85);
+  --date-text:     #54656F;
+  --online:        #25D366;
+  --danger:        #E53935;
+  --success:       #1D9E75;
+  --success-bg:    #E1F5EE;
 }
 
-/* ══ Dark Theme ═══════════════════════════════════════════════════════════════ */
-[data-theme="dark"] {
-  --accent:            #2AABEE;
-  --accent-secondary:  #64B5F6;
-  --bg-primary:        #17212B;
-  --bg-secondary:      #1E2C3A;
-  --sidebar-bg:        #17212B;
-  --header-bg:         #1E2C3A;
-  --chat-bg:           #0E1621;
-  --input-bg:          #1E2C3A;
-  --hover:             #1E2C3A;
-  --active-chat:       #2B5278;
-  --border:            rgba(255,255,255,.08);
-  --border-subtle:     rgba(255,255,255,.04);
-  --text-primary:      #FFFFFF;
-  --text-secondary:    #a0b3c1;
-  --text-muted:        #5f7e92;
-  --bubble-in:         #182533;
-  --bubble-in-text:    #FFFFFF;
-  --bubble-out:        #2B5278;
-  --bubble-out-text:   #FFFFFF;
-  --bubble-meta:       rgba(255,255,255,.45);
-  --date-badge:        rgba(30,44,58,.9);
-  --date-text:         #8a9ab0;
-  --online:            #2dc653;
-  --danger:            #ef5350;
+/* ══ Dark Theme ═════════════════════════════════════════════════════════════ */
+[data-theme="dark"]{
+  --accent:        #2AABEE;
+  --accent-light:  #64C8F5;
+  --bg:            #0E1621;
+  --sidebar:       #17212B;
+  --header:        #1F2C38;
+  --chat-bg:       #0E1621;
+  --card:          #1F2C38;
+  --input:         #2A3942;
+  --hover:         #2A3942;
+  --active:        #2B5278;
+  --border:        rgba(255,255,255,.07);
+  --border-subtle: rgba(255,255,255,.03);
+  --text:          #E8EDF0;
+  --muted:         #8D9DA8;
+  --bubble-in:     #1E2E3D;
+  --bubble-in-text:#E8EDF0;
+  --bubble-out:    #2B5278;
+  --bubble-out-text:#E8EDF0;
+  --bubble-meta:   #8D9DA8;
+  --date-bg:       rgba(31,44,56,.9);
+  --date-text:     #8D9DA8;
+  --online:        #25D366;
+  --danger:        #EF5350;
+  --success:       #2DC653;
+  --success-bg:    #1A2E24;
 }

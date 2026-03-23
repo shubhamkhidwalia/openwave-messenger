@@ -350,7 +350,9 @@ const App = (() => {
 
     WS.joinChat(chatId);
     document.getElementById('msg-input').focus();
-    if (window.innerWidth <= 700) document.getElementById('sidebar').classList.add('hidden-mobile');
+    // Mobile: slide chat area in, sidebar stays behind
+    document.getElementById('chat-area').classList.add('open');
+    document.getElementById('sidebar').style.transform = '';
   }
 
   async function loadMessages(chatId) {
@@ -663,7 +665,7 @@ const App = (() => {
   function closeChat() {
     document.getElementById('chat-view').classList.add('hidden');
     document.getElementById('splash').classList.remove('hidden');
-    document.getElementById('sidebar').classList.remove('hidden-mobile');
+    document.getElementById('chat-area').classList.remove('open');
     if (activeChatId) WS.leaveChat();
     activeChatId = null; renderChatList();
   }
