@@ -198,10 +198,22 @@ const App = (() => {
       const { message, chat_id } = data;
       if (!messages[chat_id]) messages[chat_id] = [];
       messages[chat_id].push(message);
-      if (chat_id === activeChatId) {
+
+      const isActiveChat = chat_id === activeChatId;
+      const isAppVisible = !document.hidden;
+
+      if (isActiveChat && isAppVisible) {
+        // Chat is open and app is visible — just show the message, no notification
         appendMessage(message);
         API.markRead(message.id).catch(() => {});
+      } else if (isActiveChat && !isAppVisible) {
+        // Chat is open but app is in background — show message, send notification
+        appendMessage(message);
+        API.markRead(message.id).catch(() => {});
+        const chat = chats.find(c => c.id === chat_id);
+        notifyMessage(message, chat);
       } else {
+        // Different chat — increment badge and notify
         const chat = chats.find(c => c.id === chat_id);
         if (chat) chat.unread_count = (chat.unread_count || 0) + 1;
         notifyMessage(message, chat);
@@ -322,6 +334,7 @@ const App = (() => {
     const chat = chats.find(c => c.id === chatId);
     if (!chat) return;
     chat.unread_count = 0;
+    clearNotifCount(chatId);
     renderChatList();
 
     document.getElementById('splash').classList.add('hidden');
@@ -652,15 +665,74 @@ const App = (() => {
     } catch (err) { UI.toast('Failed: ' + err.message); }
   }
 
+  // Notification queue per chat — batches like WhatsApp
+  const notifCounts = {};
+
   function notifyMessage(msg, chat) {
     if (!chat) return;
-    if (Notification.permission === 'granted')
-      new Notification(getChatName(chat), { body: msg.content?.substring(0, 80), tag: chat.id });
-    else if (Notification.permission !== 'denied') Notification.requestPermission();
+    // Never for own messages
+    if (msg.sender_id === currentUser?.id) return;
+    // Never when chat is open AND app is in foreground
+    if (msg.chat_id === activeChatId && !document.hidden) return;
+    // Request permission if not decided yet
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+      return;
+    }
+    if (Notification.permission !== 'granted') return;
+
+    // Count unread per chat (like WhatsApp badge)
+    notifCounts[chat.id] = (notifCounts[chat.id] || 0) + 1;
+    const count = notifCounts[chat.id];
+
+    const senderName = msg.display_name || getChatName(chat);
+    const title = chat.type === 'group'
+      ? `${getChatName(chat)}`
+      : senderName;
+
+    const body = chat.type === 'group'
+      ? `${senderName}: ${msgPreview(msg)}`
+      : msgPreview(msg);
+
+    const finalBody = count > 1
+      ? `${count} new messages`
+      : body;
+
+    const n = new Notification(title, {
+      body: finalBody,
+      tag: chat.id,       // one notification per chat — replaces previous
+      renotify: count === 1, // only sound on first message in a batch
+      silent: count > 1,
+      badge: '/manifest.json',
+    });
+
+    n.onclick = () => {
+      window.focus();
+      notifCounts[chat.id] = 0;
+      openChat(chat.id);
+      n.close();
+    };
   }
 
-  function openMenu() { document.getElementById('menu-drawer').classList.remove('hidden'); document.getElementById('menu-overlay').classList.remove('hidden'); }
-  function closeMenu() { document.getElementById('menu-drawer').classList.add('hidden'); document.getElementById('menu-overlay').classList.add('hidden'); }
+  // Reset count when user opens chat
+  function clearNotifCount(chatId) {
+    notifCounts[chatId] = 0;
+  }
+
+  function msgPreview(msg) {
+    if (msg.type === 'image') return '📷 Photo';
+    if (msg.type === 'file')  return '📎 File';
+    return msg.content?.substring(0, 60) || '';
+  }
+
+  function openMenu() {
+    document.getElementById('menu-drawer').classList.add('open');
+    document.getElementById('menu-overlay').classList.add('open');
+  }
+  function closeMenu() {
+    document.getElementById('menu-drawer').classList.remove('open');
+    document.getElementById('menu-overlay').classList.remove('open');
+  }
   function showContacts() { closeMenu(); document.getElementById('modal-new-chat').classList.remove('hidden'); document.getElementById('user-search-input').value=''; document.getElementById('user-search-results').innerHTML=''; setTimeout(()=>document.getElementById('user-search-input').focus(),50); }
   function closeChat() {
     document.getElementById('chat-view').classList.add('hidden');
