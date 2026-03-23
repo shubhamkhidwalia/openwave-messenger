@@ -5,51 +5,27 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Create release archive
+      - name: Build release archive
         run: |
-          zip -r openwave-messenger-${{ github.ref_name }}.zip openwave \
+          zip -r openwave-${{ github.ref_name }}.zip openwave \
             --exclude "openwave/backend/node_modules/*" \
             --exclude "openwave/backend/data/*" \
             --exclude "openwave/backend/*.db*" \
             --exclude "openwave/.git/*"
 
-      - name: Create GitHub Release
+      - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          name: OpenWave ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           body: |
-            ## OpenWave Messenger ${{ github.ref_name }}
-
-            ### Install
-            1. Download `openwave-messenger-${{ github.ref_name }}.zip`
-            2. Extract and go into `openwave/backend`
-            3. Copy `.env.example` to `.env` and fill in your credentials
-            4. Run `npm install` then `npm start`
-            5. Open `http://localhost:4000`
-
-            ### Requirements
-            - Node.js 18 or higher
-            - A free [Turso](https://turso.tech) account
-            - A free [Cloudinary](https://cloudinary.com) account
-
-            ### What's included
-            - Invite-only registration
-            - Real-time messaging via WebSockets
-            - Group chats
-            - File and image sharing
-            - Dark and light mode
-            - Deploy-ready for Railway, Render, or any Node.js host
-          files: openwave-messenger-${{ github.ref_name }}.zip
-          draft: false
-          prerelease: false
+            See [README](https://github.com/shubhamkhidwalia/openwave-messenger#readme) for setup instructions.
+          files: openwave-${{ github.ref_name }}.zip

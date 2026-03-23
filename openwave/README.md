@@ -1,93 +1,122 @@
-# OpenWave Messenger
+<div align="center">
 
-A fast, secure, invite-only messenger app built from scratch. Real-time messaging with WebSockets, cloud database, and cloud file storage — no data stored locally.
+# 🌊 OpenWave
 
-## What it does
+**A private, invite-only messenger built for real use.**
 
-- Real-time messaging between users with instant delivery
+![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=flat-square&logo=node.js&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+![Status](https://img.shields.io/badge/status-production-brightgreen?style=flat-square)
+
+</div>
+
+---
+
+OpenWave is a full-stack real-time messenger. It is invite-only by design — no one can join without a link you generate. Built to be self-hosted, open-source, and dependency-light.
+
+## Features
+
+- Real-time messaging over WebSockets
 - Direct messages and group chats
-- File and image sharing
-- Typing indicators and online presence
-- Message replies, edits, and deletes
-- Read receipts (✓ delivered, ✓✓ read)
+- File and image sharing (up to 50 MB)
+- Typing indicators, read receipts, online presence
+- Reply, edit, and delete messages
+- Invite-only registration with single-use expiring links
+- PWA — installable on Android and iOS like a native app
 - Dark and light mode
-- Invite-only registration — only people you invite can join
-- Works on any device through the browser
+- Mobile-first UI, works on desktop too
 
-## How it works
+## Stack
 
-The app has three parts working together. The backend is a Node.js server that handles all logic — authentication, message routing, and real-time events. The frontend is plain HTML, CSS, and JavaScript that runs in the browser. The database is Turso (cloud SQLite) which stores all users, messages, and chats remotely. File uploads go to Cloudinary so nothing is stored on the server's disk.
+| Layer | Technology |
+|---|---|
+| Server | Node.js + Express |
+| Real-time | WebSockets (`ws`) |
+| Database | [Turso](https://turso.tech) (cloud SQLite) |
+| File storage | [Cloudinary](https://cloudinary.com) |
+| Auth | JWT + bcrypt |
+| Frontend | Vanilla HTML/CSS/JS |
+| Hosting | Railway / any Node host |
 
-When you send a message, it goes to the server over HTTP, gets saved to the database, and is instantly pushed to the recipient through an open WebSocket connection. This is the same architecture used by production messaging apps.
+## Self-hosting
 
-Registration is invite-only. The server generates one-time invite links that you share with people you want to let in. Each link can only be used once and expires after a set number of days.
+### Requirements
 
-## Tech stack
+- Node.js 18+
+- A free [Turso](https://turso.tech) account
+- A free [Cloudinary](https://cloudinary.com) account
 
-- **Runtime** — Node.js
-- **Server** — Express
-- **Real-time** — WebSockets (ws)
-- **Database** — Turso (cloud SQLite via libSQL)
-- **File storage** — Cloudinary
-- **Auth** — JWT tokens + bcrypt password hashing
-- **Frontend** — Vanilla HTML, CSS, JavaScript (no framework)
-- **Hosting** — Railway
+### Setup
 
-## Capabilities
-
-- Unlimited users (within Turso's free 500 MB — enough for millions of messages)
-- Up to 50 MB per file upload
-- 25 GB total file storage on Cloudinary free tier
-- Multiple devices per user (open on phone and laptop simultaneously)
-- Groups with owner, admin, and member roles
-- User profiles with avatars
-- Browser push notifications
-
-## Limitations
-
-- No end-to-end encryption — messages are encrypted in transit (HTTPS/WSS) but readable by the server. Do not use for sensitive communications.
-- No message search yet
-- No voice or video calls
-- No message forwarding
-- File uploads are permanent on Cloudinary — no delete from storage yet
-- Railway free tier ($5/month credit) will suspend the app if credit runs out
-
-## Running locally
-
-```
-cd backend
+```bash
+git clone https://github.com/shubhamkhidwalia/openwave-messenger
+cd openwave-messenger/openwave/backend
 npm install
-cp ../.env.example .env
-# fill in .env with your Turso, Cloudinary credentials
+cp ../../.env.example .env
+# fill in .env
 npm start
 ```
 
 Open `http://localhost:4000`
 
-## Generating invite links
+### Environment variables
 
+Copy `.env.example` to `backend/.env` and fill in:
+
+```env
+JWT_SECRET=           # random 64-char string
+ADMIN_SECRET=         # your admin password
+TURSO_URL=            # libsql://your-db.turso.io
+TURSO_TOKEN=          # turso auth token
+CLOUDINARY_NAME=      # cloudinary cloud name
+CLOUDINARY_KEY=       # cloudinary api key
+CLOUDINARY_SECRET=    # cloudinary api secret
+APP_URL=              # your public URL
 ```
-curl -X POST https://your-domain.up.railway.app/api/admin/invite \
+
+## Inviting users
+
+Only you can add people. Run this from any terminal:
+
+```bash
+curl -X POST https://your-domain.com/api/admin/invite \
   -H "x-admin-secret: YOUR_ADMIN_SECRET" \
   -H "Content-Type: application/json" \
-  -d "{\"expires_days\": 7}"
+  -d '{"expires_days": 7}'
 ```
 
-Send the returned link to whoever you want to invite. Each link works once.
+Returns a link. Send it to whoever you want to invite. Each link is single-use.
 
-## Environment variables
+To list all invites and see who used them:
 
-| Variable | What it is |
-|---|---|
-| `JWT_SECRET` | Secret key for signing login tokens |
-| `ADMIN_SECRET` | Your password for generating invite links |
-| `TURSO_URL` | Your Turso database URL |
-| `TURSO_TOKEN` | Your Turso auth token |
-| `CLOUDINARY_NAME` | Cloudinary cloud name |
-| `CLOUDINARY_KEY` | Cloudinary API key |
-| `CLOUDINARY_SECRET` | Cloudinary API secret |
-| `APP_URL` | Your deployed app URL |
+```bash
+curl https://your-domain.com/api/admin/invites \
+  -H "x-admin-secret: YOUR_ADMIN_SECRET"
+```
+
+## Deploying
+
+### Railway (recommended)
+
+1. Fork this repo
+2. Create a new project on [Railway](https://railway.com) from your fork
+3. Set root directory to `openwave`
+4. Add all environment variables
+5. Deploy — Railway auto-detects the Dockerfile
+
+### Docker
+
+```bash
+docker compose up -d
+```
+
+## Limitations
+
+- No end-to-end encryption — messages are encrypted in transit (HTTPS) but not E2E
+- No message search
+- No voice or video calls
+- File uploads require Cloudinary (no built-in object storage)
 
 ## License
 
-MIT
+MIT © [Shubham Khidwalia](https://github.com/shubhamkhidwalia)
