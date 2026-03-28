@@ -1,57 +1,86 @@
-/* ══ Light Theme ════════════════════════════════════════════════════════════ */
-:root{
-  --accent:        #2AABEE;
-  --accent-light:  #64C8F5;
-  --bg:            #F0F2F5;
-  --sidebar:       #FFFFFF;
-  --header:        #FFFFFF;
-  --chat-bg:       #DAD3CC;
-  --card:          #FFFFFF;
-  --input:         #F0F2F5;
-  --hover:         #F5F5F5;
-  --active:        #E8F4FD;
-  --border:        #E8E8E8;
-  --border-subtle: rgba(0,0,0,.05);
-  --text:          #111111;
-  --muted:         #8A8A8A;
-  --bubble-in:     #FFFFFF;
-  --bubble-in-text:#111111;
-  --bubble-out:    #D9FDD3;
-  --bubble-out-text:#111111;
-  --bubble-meta:   #667781;
-  --date-bg:       rgba(255,255,255,.85);
-  --date-text:     #54656F;
-  --online:        #25D366;
-  --danger:        #E53935;
-  --success:       #1D9E75;
-  --success-bg:    #E1F5EE;
+/* ══ OpenWave — Unique Identity Theme ══════════════════════════════════════ */
+/* Warm slate dark + amber accent. Not Telegram. Not WhatsApp. */
+
+:root {
+  /* Accent — warm amber instead of cold blue */
+  --accent:          #F59E0B;
+  --accent-dark:     #D97706;
+  --accent-light:    #FCD34D;
+  --accent-rgb:      245, 158, 11;
+
+  /* Backgrounds — warm off-whites, not cold grays */
+  --bg:              #F7F5F2;
+  --sidebar:         #FFFFFF;
+  --header:          #FFFFFF;
+  --chat-bg:         #EDE8E1;
+  --card:            #FFFFFF;
+  --input:           #F0EDE8;
+  --hover:           #F4F2EE;
+  --active:          #FEF3C7;
+  --border:          #E8E4DC;
+  --border-subtle:   rgba(0,0,0,.04);
+
+  /* Text */
+  --text:            #1A1814;
+  --text-2:          #4A4540;
+  --muted:           #9C9088;
+
+  /* Bubbles — iMessage-inspired warm tones */
+  --bubble-in:       #FFFFFF;
+  --bubble-in-text:  #1A1814;
+  --bubble-out:      #F59E0B;
+  --bubble-out-text: #FFFFFF;
+  --bubble-meta:     rgba(0,0,0,.4);
+
+  /* Misc */
+  --date-bg:         rgba(255,255,255,.82);
+  --date-text:       #7A7268;
+  --online:          #10B981;
+  --danger:          #EF4444;
+  --success:         #10B981;
+  --success-bg:      #D1FAE5;
+  --reaction-bg:     #F0EDE8;
+
+  /* Shadows */
+  --shadow-sm:       0 1px 4px rgba(0,0,0,.08);
+  --shadow-md:       0 4px 16px rgba(0,0,0,.12);
 }
 
-/* ══ Dark Theme ═════════════════════════════════════════════════════════════ */
-[data-theme="dark"]{
-  --accent:        #2AABEE;
-  --accent-light:  #64C8F5;
-  --bg:            #0E1621;
-  --sidebar:       #17212B;
-  --header:        #1F2C38;
-  --chat-bg:       #0E1621;
-  --card:          #1F2C38;
-  --input:         #2A3942;
-  --hover:         #2A3942;
-  --active:        #2B5278;
-  --border:        rgba(255,255,255,.07);
-  --border-subtle: rgba(255,255,255,.03);
-  --text:          #E8EDF0;
-  --muted:         #8D9DA8;
-  --bubble-in:     #1E2E3D;
-  --bubble-in-text:#E8EDF0;
-  --bubble-out:    #2B5278;
-  --bubble-out-text:#E8EDF0;
-  --bubble-meta:   #8D9DA8;
-  --date-bg:       rgba(31,44,56,.9);
-  --date-text:     #8D9DA8;
-  --online:        #25D366;
-  --danger:        #EF5350;
-  --success:       #2DC653;
-  --success-bg:    #1A2E24;
+[data-theme="dark"] {
+  --accent:          #F59E0B;
+  --accent-dark:     #D97706;
+  --accent-light:    #FCD34D;
+  --accent-rgb:      245, 158, 11;
+
+  --bg:              #16120E;
+  --sidebar:         #1C1814;
+  --header:          #221E18;
+  --chat-bg:         #16120E;
+  --card:            #221E18;
+  --input:           #2A2520;
+  --hover:           #2A2520;
+  --active:          #3D2E10;
+  --border:          rgba(255,255,255,.07);
+  --border-subtle:   rgba(255,255,255,.03);
+
+  --text:            #F0EDE8;
+  --text-2:          #C8C0B4;
+  --muted:           #8A7E74;
+
+  --bubble-in:       #2A2520;
+  --bubble-in-text:  #F0EDE8;
+  --bubble-out:      #92700A;
+  --bubble-out-text: #FFF8E7;
+  --bubble-meta:     rgba(255,255,255,.5);
+
+  --date-bg:         rgba(34,30,24,.92);
+  --date-text:       #8A7E74;
+  --online:          #10B981;
+  --danger:          #F87171;
+  --success:         #34D399;
+  --success-bg:      #064E3B;
+  --reaction-bg:     #2A2520;
+
+  --shadow-sm:       0 1px 4px rgba(0,0,0,.3);
+  --shadow-md:       0 4px 20px rgba(0,0,0,.4);
 }
