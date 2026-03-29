@@ -23,6 +23,16 @@ const App = (() => {
   // ── Init ───────────────────────────────────────────────────────────────────
   async function init() {
     UI.loadTheme();
+    // Load public config (bot username etc.)
+    try {
+      const cfg = await fetch('/api/config').then(r => r.json());
+      if (cfg.bot_username) {
+        const link = document.getElementById('bot-link');
+        if (link) link.href = `https://t.me/${cfg.bot_username}`;
+        const banner = document.getElementById('request-invite-banner');
+        if (banner) banner.dataset.hasBotgit = '1';
+      }
+    } catch {}
     const inviteMatch = location.pathname.match(/^\/invite\/([a-zA-Z0-9]+)$/);
     if (inviteMatch) {
       const code = inviteMatch[1];
@@ -87,6 +97,9 @@ const App = (() => {
         document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById(tab.dataset.tab + '-form').classList.add('active');
+        // Show bot link on Register tab
+        const banner = document.getElementById('request-invite-banner');
+        if (banner) banner.style.display = tab.dataset.tab === 'register' ? 'block' : 'none';
       };
     });
     const lf = document.getElementById('login-form');

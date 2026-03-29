@@ -41,6 +41,14 @@ app.get('/api/invite/:code', async (req, res) => {
   res.json({ valid: true });
 });
 
+// ── Public config (exposes non-secret config to frontend) ────────────────────
+app.get('/api/config', (req, res) => {
+  res.json({
+    bot_username: process.env.TELEGRAM_BOT_USERNAME || null,
+    app_name: 'OpenWave',
+  });
+});
+
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/health', (req, res) => {
   res.json({

@@ -8,7 +8,8 @@
  *   YOU → tap Deny   → polite decline sent to them
  */
 
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+// Load .env if running locally (Railway injects vars directly)
+try { require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') }); } catch {}
 
 const TOKEN        = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_ID     = String(process.env.TELEGRAM_ADMIN_ID);
