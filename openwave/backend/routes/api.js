@@ -129,14 +129,7 @@ router.patch('/chats/:id', async (req, res) => {
     if (!await q.isMember(req.params.id, req.user.id)) return res.status(403).json({ error: 'Not a member' });
     const { name, avatar, description } = req.body;
     const { db } = require('../db');
-    db.exec = db.exec || (() => {});
-    await q.updateChatLastMsg(Date.now(), req.params.id); // touch timestamp
-    if (name) await require('../db').q.run = undefined; // fallback
-    // Direct update
-    const { createClient } = require('@libsql/client');
-    // Use db directly
-    const { db: dbConn } = require('../db');
-    await dbConn.execute({
+    await db.execute({
       sql: 'UPDATE chats SET name=COALESCE(?,name), avatar=COALESCE(?,avatar), description=COALESCE(?,description) WHERE id=?',
       args: [name||null, avatar||null, description||null, req.params.id]
     });
