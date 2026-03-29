@@ -120,6 +120,32 @@ router.post('/chats/group', async (req, res) => {
   res.status(201).json({ chat: { ...chat, members: chatMembers } });
 });
 
+// PATCH /api/chats/:id — update group name/avatar
+router.patch('/chats/:id', async (req, res) => {
+  try {
+    const chat = await q.getChatById(req.params.id);
+    if (!chat) return res.status(404).json({ error: 'Chat not found' });
+    if (chat.type !== 'group') return res.status(400).json({ error: 'Not a group' });
+    if (!await q.isMember(req.params.id, req.user.id)) return res.status(403).json({ error: 'Not a member' });
+    const { name, avatar, description } = req.body;
+    const { db } = require('../db');
+    db.exec = db.exec || (() => {});
+    await q.updateChatLastMsg(Date.now(), req.params.id); // touch timestamp
+    if (name) await require('../db').q.run = undefined; // fallback
+    // Direct update
+    const { createClient } = require('@libsql/client');
+    // Use db directly
+    const { db: dbConn } = require('../db');
+    await dbConn.execute({
+      sql: 'UPDATE chats SET name=COALESCE(?,name), avatar=COALESCE(?,avatar), description=COALESCE(?,description) WHERE id=?',
+      args: [name||null, avatar||null, description||null, req.params.id]
+    });
+    const updated = await q.getChatById(req.params.id);
+    broadcast({ type: 'chat_updated', chat: updated }, req.params.id);
+    res.json({ chat: updated });
+  } catch(err) { console.error(err); res.status(500).json({ error: err.message }); }
+});
+
 router.get('/chats/:id/members', async (req, res) => {
   if (!await q.isMember(req.params.id, req.user.id))
     return res.status(403).json({ error: 'Not a member' });

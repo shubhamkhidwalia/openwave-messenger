@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="OpenWave">
-  <meta name="theme-color" content="#F59E0B">
+  <meta name="theme-color" content="#7C3AED">
   <title>OpenWave</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="/css/theme.css">
@@ -37,6 +37,14 @@
       <div class="field-group"><label>Phone <span class="optional">(optional)</span></label><input type="tel" id="reg-phone" placeholder="+91 98765 43210"></div>
       <div class="field-group"><label>Password</label><input type="password" id="reg-password" placeholder="min 6 characters" autocomplete="new-password"></div>
       <div class="field-group"><label>Invite Code <span class="optional">*required*</span></label><input type="text" id="reg-invite" placeholder="Paste invite code" autocomplete="off" autocapitalize="none"></div>
+      <div class="field-group">
+        <label>Human check</label>
+        <div class="captcha-box">
+          <span class="captcha-question" id="captcha-q"></span>
+          <input type="number" class="captcha-input" id="captcha-answer" placeholder="?" autocomplete="off">
+          <span class="captcha-refresh" onclick="refreshCaptcha()" title="New question">↻</span>
+        </div>
+      </div>
       <div class="auth-error" id="reg-error"></div>
       <button type="submit" class="btn-primary">Create Account</button>
     </form>
@@ -234,6 +242,25 @@
 
 <div id="toast" class="toast hidden"></div>
 
+<script>
+// ── Captcha ──────────────────────────────────────────────────────────────
+let _ca = 0, _cb = 0, _cop = '+';
+function refreshCaptcha() {
+  const ops = ['+','-','×'];
+  _cop = ops[Math.floor(Math.random()*ops.length)];
+  _ca = Math.floor(Math.random()*12)+1;
+  _cb = Math.floor(Math.random()*12)+1;
+  if (_cop==='-' && _cb > _ca) { const t=_ca; _ca=_cb; _cb=t; }
+  document.getElementById('captcha-q').textContent = `${_ca} ${_cop} ${_cb} =`;
+  document.getElementById('captcha-answer').value = '';
+}
+function checkCaptcha() {
+  const ans = parseInt(document.getElementById('captcha-answer').value);
+  const correct = _cop==='+'?_ca+_cb:_cop==='-'?_ca-_cb:_ca*_cb;
+  return ans === correct;
+}
+window.addEventListener('DOMContentLoaded', refreshCaptcha);
+</script>
 <script src="/js/api.js"></script>
 <script src="/js/ws.js"></script>
 <script src="/js/ui.js"></script>

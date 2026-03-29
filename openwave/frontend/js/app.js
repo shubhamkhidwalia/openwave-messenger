@@ -73,7 +73,16 @@ const App = (() => {
     const rf = document.getElementById('register-form');
     if (!rf._bound) { rf._bound = true; rf.addEventListener('submit', async e => {
       e.preventDefault(); const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = 'Creating…';
-      try { const d = await API.register({ username: document.getElementById('reg-username').value, display_name: document.getElementById('reg-name').value, phone: document.getElementById('reg-phone').value || undefined, password: document.getElementById('reg-password').value, invite_code: document.getElementById('reg-invite').value.trim() }); localStorage.setItem('ow_token', d.token); currentUser = d.user; startApp(); }
+      try {
+        // Human verification
+        if (typeof checkCaptcha === 'function' && !checkCaptcha()) {
+          document.getElementById('reg-error').textContent = 'Wrong answer — try the math question again';
+          if (typeof refreshCaptcha === 'function') refreshCaptcha();
+          btn.disabled = false; btn.textContent = 'Create Account'; return;
+        }
+        const d = await API.register({ username: document.getElementById('reg-username').value, display_name: document.getElementById('reg-name').value, phone: document.getElementById('reg-phone').value || undefined, password: document.getElementById('reg-password').value, invite_code: document.getElementById('reg-invite').value.trim() });
+        localStorage.setItem('ow_token', d.token); currentUser = d.user; startApp();
+      }
       catch (err) { document.getElementById('reg-error').textContent = err.message; btn.disabled = false; btn.textContent = 'Create Account'; }
     }); }
   }
@@ -250,7 +259,11 @@ const App = (() => {
     if (activeChatId) WS.leaveChat();
     activeChatId = chatId;
     const chat = chats.find(c => c.id === chatId); if (!chat) return;
-    chat.unread_count = 0; clearNotifCount(chatId); renderChatList();
+    chat.unread_count = 0; clearNotifCount(chatId);
+    // Clear notification badge immediately before async ops
+    const badgeEl = document.querySelector(`[data-chat-id="${chatId}"] .unread-badge`);
+    if (badgeEl) badgeEl.remove();
+    renderChatList();
     document.getElementById('splash').classList.add('hidden');
     document.getElementById('chat-view').classList.remove('hidden');
     document.getElementById('chat-area').classList.add('open');
@@ -648,8 +661,24 @@ const App = (() => {
     } else {
       const members=await API.getChatMembers(chat.id).then(d=>d.members).catch(()=>[]);
       document.getElementById('info-title').textContent='Group Info';
-      document.getElementById('info-avatar').style.cssText=`background:${UI.colorForName(chat.name||'')};display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:#fff;width:86px;height:86px;border-radius:50%;margin:0 auto`;
-      document.getElementById('info-avatar').textContent=UI.initials(chat.name||'?');
+      const avatarEl = document.getElementById('info-avatar');
+      avatarEl.style.cssText=`background:${UI.colorForName(chat.name||'')};display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:#fff;width:90px;height:90px;border-radius:50%;margin:0 auto;cursor:pointer;overflow:hidden;position:relative`;
+      if (chat.avatar) { avatarEl.innerHTML=`<img src="${chat.avatar}" style="width:100%;height:100%;object-fit:cover"><div class="profile-avatar-edit">✎</div>`; }
+      else { avatarEl.textContent=UI.initials(chat.name||'?'); }
+      avatarEl.onclick = async () => {
+        const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+        inp.onchange = async e => {
+          const f = e.target.files[0]; if (!f) return;
+          try {
+            const uploadData = await API.upload(f);
+            await fetch(`/api/chats/${chat.id}`, { method:'PATCH', headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('ow_token')}, body: JSON.stringify({avatar: uploadData.url}) });
+            avatarEl.innerHTML=`<img src="${uploadData.url}" style="width:100%;height:100%;object-fit:cover"><div class="profile-avatar-edit">✎</div>`;
+            const c = chats.find(x=>x.id===chat.id); if (c) { c.avatar=uploadData.url; renderChatList(); const ha=document.getElementById('chat-header-avatar'); if (ha) { ha.innerHTML=`<img src="${uploadData.url}" style="width:100%;height:100%;object-fit:cover">`; } }
+            UI.toast('Group photo updated ✓');
+          } catch { UI.toast('Upload failed'); }
+        };
+        inp.click();
+      };
       document.getElementById('info-name').textContent=chat.name; document.getElementById('info-sub').textContent=`${members.length} members`;
       document.getElementById('info-bio-section').style.display='none';
       const ae=document.getElementById('info-actions'); ae.innerHTML='<div style="padding:.5rem 0;font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Members</div>';
