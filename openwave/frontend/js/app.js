@@ -32,9 +32,34 @@ const App = (() => {
     }
     const token = localStorage.getItem('ow_token');
     if (token) {
-      try { const d = await API.me(); currentUser = d.user; startApp(); }
-      catch { localStorage.removeItem('ow_token'); showAuth(); }
+      try {
+        const d = await API.me();
+        currentUser = d.user;
+        startApp();
+      } catch (err) {
+        if (err.isNetworkError) {
+          // Network down — don't wipe the token, show a retry screen
+          showNetworkError();
+        } else {
+          // Token is invalid/expired — clear it and show login
+          localStorage.removeItem('ow_token');
+          showAuth();
+        }
+      }
     } else showAuth();
+  }
+
+  function showNetworkError() {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app').classList.add('hidden');
+    const card = document.querySelector('.auth-card');
+    card.innerHTML = `
+      <div class="auth-logo">🌊</div>
+      <h1 class="auth-title">OpenWave</h1>
+      <p class="auth-sub" style="color:var(--danger)">No connection</p>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6">Could not reach the server. Check your internet and try again.</p>
+      <button class="btn-primary" onclick="location.reload()">Try Again</button>
+    `;
   }
 
   function showAuth(tab = 'login', prefillInvite = '') {
@@ -125,6 +150,9 @@ const App = (() => {
 
     // Voice recording
     setupVoiceRecorder();
+
+    // Swipe right to go back from chat to sidebar (mobile)
+    setupSwipeBack();
 
     // Close reaction picker when clicking outside
     document.addEventListener('click', e => {
@@ -657,7 +685,10 @@ const App = (() => {
       const u=chat.peer; document.getElementById('info-title').textContent='Profile';
       document.getElementById('info-avatar').innerHTML=UI.avatarHTML(u.display_name,u.avatar,86).replace('display:flex;','display:flex;margin:0 auto;');
       document.getElementById('info-name').textContent=u.display_name; document.getElementById('info-sub').textContent='@'+u.username;
-      document.getElementById('info-bio').textContent=u.bio||'No bio'; document.getElementById('info-bio-section').style.display='block'; document.getElementById('info-actions').innerHTML='';
+      document.getElementById('info-bio').textContent=u.bio||'No bio'; document.getElementById('info-bio-section').style.display='block';
+      document.getElementById('info-actions').innerHTML=`
+        <button class="btn-primary" style="background:var(--danger);box-shadow:none;margin-top:.5rem" onclick="App.blockUser('${u.id}')">Block User</button>
+      `;
     } else {
       const members=await API.getChatMembers(chat.id).then(d=>d.members).catch(()=>[]);
       document.getElementById('info-title').textContent='Group Info';
@@ -714,8 +745,33 @@ const App = (() => {
   function closeMenu() { document.getElementById('menu-drawer').classList.remove('open'); document.getElementById('menu-overlay').classList.remove('open'); }
   function showContacts() { closeMenu(); document.getElementById('modal-new-chat').classList.remove('hidden'); document.getElementById('user-search-input').value=''; document.getElementById('user-search-results').innerHTML=''; setTimeout(()=>document.getElementById('user-search-input').focus(),50); }
   function closeChat() { document.getElementById('chat-view').classList.add('hidden'); document.getElementById('splash').classList.remove('hidden'); document.getElementById('chat-area').classList.remove('open'); if (activeChatId) WS.leaveChat(); activeChatId=null; renderChatList(); }
-  function clearChatHistory() { document.getElementById('chat-dropdown').classList.add('hidden'); if (!activeChatId) return; messages[activeChatId]=[]; renderMessages(activeChatId); UI.toast('Cleared'); }
-  function deleteChat() { document.getElementById('chat-dropdown').classList.add('hidden'); if (!confirm('Remove chat?')) return; chats=chats.filter(c=>c.id!==activeChatId); closeChat(); renderChatList(); }
+  function clearChatHistory() {
+    document.getElementById('chat-dropdown').classList.add('hidden');
+    if (!activeChatId) return;
+    if (!confirm('Clear all messages in this chat?')) return;
+    messages[activeChatId] = [];
+    renderMessages(activeChatId);
+    UI.toast('Chat cleared');
+  }
+  async function deleteChat() {
+    document.getElementById('chat-dropdown').classList.add('hidden');
+    const chat = chats.find(c => c.id === activeChatId);
+    if (!chat) return;
+    const isGroup = chat.type === 'group';
+    const label = isGroup ? 'Leave and delete this group?' : 'Delete this conversation?';
+    if (!confirm(label)) return;
+    try {
+      if (isGroup) {
+        await API.leaveGroup(activeChatId).catch(() => {});
+      } else {
+        await API.deleteChat(activeChatId).catch(() => {});
+      }
+    } catch {}
+    chats = chats.filter(c => c.id !== activeChatId);
+    closeChat();
+    renderChatList();
+    UI.toast(isGroup ? 'Left group' : 'Chat deleted');
+  }
   function getChatName(chat) { return chat?.type==='direct'?chat.peer?.display_name||'Unknown':chat?.name||'Group'; }
   function truncate(s,l) { return !s?'':(s.length>l?s.slice(0,l)+'…':s); }
   function autoGrow(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
@@ -725,7 +781,56 @@ const App = (() => {
   function formatDuration(s) { return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
   function logout() { closeMenu(); if (!confirm('Sign out?')) return; WS.disconnect(); localStorage.removeItem('ow_token'); currentUser=null; chats=[]; messages={}; activeChatId=null; document.getElementById('app').classList.add('hidden'); document.getElementById('chat-view').classList.add('hidden'); document.getElementById('splash').classList.remove('hidden'); showAuth(); }
 
-  return { init, openChat, closeChat, startDirectChat, searchUsers, showNewGroup, searchGroupUsers, toggleGroupMember, createGroup, showChatInfo, showSettings, saveSettings, uploadAvatar, showContacts, openMenu, closeMenu, closeModal, logout, clearChatHistory, deleteChat, cancelReply, addReaction, showStarred, jumpToMessage, searchInChat, closeChatSearch, forwardTo };
+  function setupSwipeBack() {
+    let startX = 0, startY = 0, dragging = false;
+    const chatArea = document.getElementById('chat-area');
+
+    chatArea.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      dragging = false;
+    }, { passive: true });
+
+    chatArea.addEventListener('touchmove', e => {
+      if (!activeChatId) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      // Only trigger on right swipe from left edge, more horizontal than vertical
+      if (dx > 20 && dy < 60 && startX < 40) {
+        dragging = true;
+        const clamp = Math.min(dx, window.innerWidth);
+        chatArea.style.transform = `translateX(${clamp}px)`;
+        chatArea.style.transition = 'none';
+      }
+    }, { passive: true });
+
+    chatArea.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - startX;
+      chatArea.style.transition = '';
+      chatArea.style.transform = '';
+      if (dragging && dx > 100) {
+        closeChat();
+      }
+      dragging = false;
+    });
+  }
+
+  async function blockUser(userId) {
+    if (!confirm('Block this user? They will no longer be able to message you.')) return;
+    try {
+      await API.blockContact(userId);
+      closeModal('modal-chat-info');
+      // Remove their chat from list
+      chats = chats.filter(c => !(c.type==='direct' && c.peer?.id===userId));
+      closeChat();
+      renderChatList();
+      UI.toast('User blocked');
+    } catch (err) {
+      UI.toast('Could not block: ' + err.message);
+    }
+  }
+
+  return { init, openChat, closeChat, startDirectChat, searchUsers, showNewGroup, searchGroupUsers, toggleGroupMember, createGroup, showChatInfo, showSettings, saveSettings, uploadAvatar, showContacts, openMenu, closeMenu, closeModal, logout, clearChatHistory, deleteChat, cancelReply, addReaction, showStarred, jumpToMessage, searchInChat, closeChatSearch, forwardTo, blockUser };
 })();
 
 // Voice playback

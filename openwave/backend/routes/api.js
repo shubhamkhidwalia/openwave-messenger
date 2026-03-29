@@ -211,4 +211,50 @@ router.post('/messages/:id/read', async (req, res) => {
   res.json({ ok: true });
 });
 
+// DELETE /api/chats/:id — delete direct chat or leave group
+router.delete('/chats/:id', async (req, res) => {
+  try {
+    const chat = await q.getChatById(req.params.id);
+    if (!chat) return res.status(404).json({ error: 'Chat not found' });
+    if (!await q.isMember(req.params.id, req.user.id)) return res.status(403).json({ error: 'Not a member' });
+    await q.removeMember(req.params.id, req.user.id);
+    res.json({ ok: true });
+  } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/chats/:id/leave
+router.post('/chats/:id/leave', async (req, res) => {
+  try {
+    if (!await q.isMember(req.params.id, req.user.id)) return res.status(403).json({ error: 'Not a member' });
+    await q.removeMember(req.params.id, req.user.id);
+    // System message
+    const { v4: uuid } = require('uuid');
+    const sysId = uuid();
+    await q.insertMessage(sysId, req.params.id, req.user.id, 'system', `${req.user.display_name} left the group`, null);
+    broadcast({ type: 'member_left', chat_id: req.params.id, user_id: req.user.id }, req.params.id);
+    res.json({ ok: true });
+  } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
+// DELETE /api/chats/:id/members/:uid — remove member (owner only)
+router.delete('/chats/:id/members/:uid', async (req, res) => {
+  try {
+    const members = await q.getChatMembers(req.params.id);
+    const me = members.find(m => m.id === req.user.id);
+    if (!me || me.role !== 'owner') return res.status(403).json({ error: 'Only the owner can remove members' });
+    await q.removeMember(req.params.id, req.params.uid);
+    broadcast({ type: 'member_removed', chat_id: req.params.id, user_id: req.params.uid }, req.params.id);
+    res.json({ ok: true });
+  } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/contacts/:id/block
+router.post('/contacts/:id/block', async (req, res) => {
+  try {
+    await q.addContact(req.user.id, req.params.id);
+    await q.blockContact(req.user.id, req.params.id);
+    res.json({ ok: true });
+  } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;

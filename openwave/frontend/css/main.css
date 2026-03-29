@@ -309,3 +309,113 @@ textarea{resize:none}
   .back-btn{display:none!important}
   .menu-drawer{position:absolute}
 }
+
+/* ══ MOBILE FIXES ═════════════════════════════════════════════════════════════
+   Proper mobile app feel — no browser chrome bleed, proper touch targets,
+   keyboard-aware layout, swipe-friendly sizing
+════════════════════════════════════════════════════════════════════════════ */
+
+/* Prevent iOS bounce scroll on the root, allow it inside lists */
+html, body { overscroll-behavior: none; }
+.messages-list, .chat-list, .user-list, .settings-body, .profile-actions, .starred-list {
+  overscroll-behavior: contain;
+}
+
+/* Keyboard push-up: when keyboard opens on mobile, shrink the chat */
+@supports (height: 100dvh) {
+  .app, .auth-screen { height: 100dvh; min-height: 100dvh; }
+  .chat-area { height: 100dvh; }
+}
+
+/* Larger tap targets on mobile — minimum 44px per Apple HIG */
+.chat-item { min-height: 64px; }
+.menu-item { min-height: 48px; }
+.dropdown-item { min-height: 48px; }
+.msg-context-item { min-height: 48px; }
+
+/* iOS safe area — notch and home bar */
+.sidebar-header, .chat-header {
+  padding-top: max(0px, env(safe-area-inset-top));
+}
+.input-area {
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+}
+.install-banner {
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+}
+
+/* Prevent text selection on UI elements */
+.sidebar-header, .chat-header, .menu-drawer,
+.chat-item, .icon-btn, .send-btn, .voice-btn,
+.reaction-chip, .reaction-emoji, .bubble-meta { user-select: none; -webkit-user-select: none; }
+
+/* Allow text selection inside message bubbles */
+.bubble-text { user-select: text; -webkit-user-select: text; }
+
+/* Remove iOS input styling */
+input, textarea, select {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* Momentum scrolling on iOS */
+.messages-list, .chat-list, .user-list {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent double-tap zoom on buttons */
+button, a { touch-action: manipulation; }
+
+/* Fix modal keyboard overlap on mobile */
+.modal {
+  align-items: flex-end;
+}
+.modal-box {
+  max-height: 85vh;
+  max-height: 85dvh;
+}
+
+/* Fix input zoom on iOS (prevents zoom when input font-size < 16px) */
+.field-group input,
+.field-group textarea,
+#msg-input,
+#search-input,
+.modal-search input,
+.chat-search-inner input {
+  font-size: 16px; /* prevents iOS zoom */
+}
+
+/* Swipe hint on sidebar drag handle */
+.sidebar::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 40px;
+  background: var(--border);
+  border-radius: 2px;
+  opacity: 0;
+}
+
+/* Status bar color on Android Chrome via theme-color meta — handled in HTML */
+
+/* Bottom nav safe area for Android gesture navigation */
+@media (display-mode: standalone) {
+  .input-area {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Pull-to-refresh prevention */
+body { overscroll-behavior-y: none; }
+.messages-list { overscroll-behavior-y: contain; }
+
+/* Active states for touch — instant feedback */
+.chat-item:active { background: var(--hover); transition: none; }
+.icon-btn:active { background: var(--hover); transition: none; }
+.send-btn:active { transform: scale(.88); transition: transform .05s; }
