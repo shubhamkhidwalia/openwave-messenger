@@ -1,97 +1,95 @@
-/* ══ OpenWave — Premium Identity Theme ══════════════════════════════════════
-   Inspired by: luxury apps, dark mode done right, warm not cold
-   Palette: Deep charcoal base, electric violet accent, warm amber highlights
-═══════════════════════════════════════════════════════════════════════════ */
+/* ══ OpenWave — Netflix-grade Premium Dark Theme ════════════════════════════
+   Deep cinematic blacks, electric violet, warm gold accents
+   Every color chosen for maximum visual impact and readability
+════════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* Primary accent — electric violet */
-  --accent:          #7C3AED;
-  --accent-2:        #A78BFA;
-  --accent-3:        #EDE9FE;
-  --accent-glow:     rgba(124, 58, 237, 0.25);
+  --accent:       #7C3AED;
+  --accent-2:     #A78BFA;
+  --accent-3:     #EDE9FE;
+  --accent-glow:  rgba(124,58,237,0.2);
+  --gold:         #F59E0B;
+  --gold-light:   #FCD34D;
 
-  /* Warm amber highlight */
-  --amber:           #F59E0B;
-  --amber-light:     #FCD34D;
+  --bg:           #FAFAF9;
+  --sidebar:      #FFFFFF;
+  --header:       #FFFFFF;
+  --chat-bg:      #F0ECE6;
+  --card:         #FFFFFF;
+  --input:        #F3F0EC;
+  --hover:        #F7F5F2;
+  --active:       #EDE9FE;
+  --border:       #E5E1D8;
+  --border-sub:   rgba(0,0,0,.04);
 
-  /* Light mode — warm paper whites */
-  --bg:              #FAF9F7;
-  --sidebar:         #FFFFFF;
-  --header:          #FFFFFF;
-  --chat-bg:         #F0ECE6;
-  --card:            #FFFFFF;
-  --input:           #F4F2EF;
-  --hover:           #F7F5F2;
-  --active:          #EDE9FE;
-  --border:          #E8E4DC;
-  --border-subtle:   rgba(0,0,0,.04);
+  --text:         #18161A;
+  --text-2:       #4A4550;
+  --muted:        #9B94A3;
+  --link:         #7C3AED;
 
-  /* Text — warm not cold */
-  --text:            #18161A;
-  --text-2:          #48434F;
-  --muted:           #9B94A3;
+  --bubble-in:    #FFFFFF;
+  --bubble-in-t:  #18161A;
+  --bubble-out:   #7C3AED;
+  --bubble-out-t: #FFFFFF;
+  --meta-in:      #9B94A3;
+  --meta-out:     rgba(255,255,255,.6);
 
-  /* Bubbles */
-  --bubble-in:       #FFFFFF;
-  --bubble-in-text:  #18161A;
-  --bubble-out:      #7C3AED;
-  --bubble-out-text: #FFFFFF;
-  --bubble-meta-in:  #9B94A3;
-  --bubble-meta-out: rgba(255,255,255,.65);
+  --date-bg:      rgba(255,255,255,.9);
+  --date-t:       #7A7280;
+  --online:       #10B981;
+  --danger:       #EF4444;
+  --success-bg:   #D1FAE5;
+  --success:      #065F46;
+  --react-bg:     #F3F0EC;
 
-  /* UI */
-  --date-bg:         rgba(255,255,255,.88);
-  --date-text:       #7A7280;
-  --online:          #10B981;
-  --danger:          #EF4444;
-  --success:         #10B981;
-  --success-bg:      #D1FAE5;
-  --reaction-bg:     #F4F2EF;
-
-  --shadow-sm:       0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
-  --shadow-md:       0 4px 16px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.06);
-  --shadow-lg:       0 20px 40px rgba(0,0,0,.12), 0 8px 16px rgba(0,0,0,.08);
+  --quote-bg:     linear-gradient(135deg,#7C3AED,#5B21B6);
+  --shadow-xs:    0 1px 2px rgba(0,0,0,.06);
+  --shadow-sm:    0 2px 8px rgba(0,0,0,.08);
+  --shadow-md:    0 8px 24px rgba(0,0,0,.10);
+  --shadow-lg:    0 20px 60px rgba(0,0,0,.14);
 }
 
 [data-theme="dark"] {
-  --accent:          #8B5CF6;
-  --accent-2:        #A78BFA;
-  --accent-3:        #2D1B69;
-  --accent-glow:     rgba(139, 92, 246, 0.3);
+  --accent:       #8B5CF6;
+  --accent-2:     #C4B5FD;
+  --accent-3:     #1E1B4B;
+  --accent-glow:  rgba(139,92,246,0.25);
+  --gold:         #F59E0B;
+  --gold-light:   #FCD34D;
 
-  --amber:           #F59E0B;
-  --amber-light:     #FCD34D;
+  --bg:           #0A0A0F;
+  --sidebar:      #100F17;
+  --header:       #13121C;
+  --chat-bg:      #0A0A0F;
+  --card:         #13121C;
+  --input:        #1C1A28;
+  --hover:        #1C1A28;
+  --active:       #2D1F5E;
+  --border:       rgba(255,255,255,.07);
+  --border-sub:   rgba(255,255,255,.03);
 
-  --bg:              #0F0D12;
-  --sidebar:         #141118;
-  --header:          #1A1720;
-  --chat-bg:         #0F0D12;
-  --card:            #1A1720;
-  --input:           #221E2A;
-  --hover:           #1E1A26;
-  --active:          #2D1B69;
-  --border:          rgba(255,255,255,.07);
-  --border-subtle:   rgba(255,255,255,.03);
+  --text:         #F0EDF8;
+  --text-2:       #C4BDD4;
+  --muted:        #6B6080;
+  --link:         #A78BFA;
 
-  --text:            #EDE9F4;
-  --text-2:          #B8B0C8;
-  --muted:           #6B6380;
+  --bubble-in:    #1C1A28;
+  --bubble-in-t:  #F0EDF8;
+  --bubble-out:   #5B21B6;
+  --bubble-out-t: #FFFFFF;
+  --meta-in:      #6B6080;
+  --meta-out:     rgba(255,255,255,.5);
 
-  --bubble-in:       #1E1A26;
-  --bubble-in-text:  #EDE9F4;
-  --bubble-out:      #6D28D9;
-  --bubble-out-text: #FFFFFF;
-  --bubble-meta-in:  #6B6380;
-  --bubble-meta-out: rgba(255,255,255,.55);
+  --date-bg:      rgba(19,18,28,.95);
+  --date-t:       #6B6080;
+  --online:       #10B981;
+  --danger:       #F87171;
+  --success-bg:   #064E3B;
+  --success:      #6EE7B7;
+  --react-bg:     #1C1A28;
 
-  --date-bg:         rgba(26,23,32,.94);
-  --date-text:       #6B6380;
-  --online:          #10B981;
-  --danger:          #F87171;
-  --success:         #34D399;
-  --success-bg:      #064E3B;
-  --reaction-bg:     #221E2A;
-
-  --shadow-sm:       0 1px 3px rgba(0,0,0,.4);
-  --shadow-md:       0 4px 20px rgba(0,0,0,.5);
-  --shadow-lg:       0 20px 60px rgba(0,0,0,.6);
+  --quote-bg:     linear-gradient(135deg,#4C1D95,#2D1B69);
+  --shadow-xs:    0 1px 2px rgba(0,0,0,.4);
+  --shadow-sm:    0 2px 8px rgba(0,0,0,.5);
+  --shadow-md:    0 8px 24px rgba(0,0,0,.6);
+  --shadow-lg:    0 20px 60px rgba(0,0,0,.7);
 }

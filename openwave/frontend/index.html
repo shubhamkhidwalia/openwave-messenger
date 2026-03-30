@@ -7,10 +7,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="OpenWave">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#7C3AED" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0F0D12" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#7C3AED" media="(prefers-color-scheme:light)">
+  <meta name="theme-color" content="#0A0A0F" media="(prefers-color-scheme:dark)">
   <meta name="format-detection" content="telephone=no">
-  <meta name="msapplication-TileColor" content="#7C3AED">
   <title>OpenWave</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="/css/theme.css">
@@ -21,170 +20,205 @@
 <!-- Auth -->
 <div id="auth-screen" class="auth-screen">
   <div class="auth-card">
-    <div class="auth-logo">🌊</div>
+    <span class="auth-logo">🌊</span>
     <h1 class="auth-title">OpenWave</h1>
-    <p class="auth-sub">Fast. Open. Yours.</p>
-    <div id="invite-banner" class="invite-banner"></div>
+    <p class="auth-sub">Private. Secure. Yours.</p>
+    <div id="invite-banner" class="invite-banner" style="display:none">
+      <p>Don't have an invite code?</p>
+      <a id="bot-link" href="#" target="_blank">✈ Request one on Telegram</a>
+      <small>Once approved, paste the code below ↓</small>
+    </div>
     <div class="auth-tabs">
       <button class="auth-tab active" data-tab="login">Sign In</button>
       <button class="auth-tab" data-tab="register">Register</button>
     </div>
     <form id="login-form" class="auth-form active">
-      <div class="field-group"><label>Username</label><input type="text" id="login-username" placeholder="your_username" autocomplete="username" autocapitalize="none"></div>
+      <div class="field-group"><label>Username</label><input type="text" id="login-username" placeholder="your_username" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
       <div class="field-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"></div>
       <div class="auth-error" id="login-error"></div>
       <button type="submit" class="btn-primary">Sign In</button>
     </form>
     <form id="register-form" class="auth-form">
-      <div id="request-invite-banner" style="display:none;background:var(--accent-3);border:1px solid var(--accent);border-radius:14px;padding:12px 14px;margin-bottom:1rem;text-align:center">
-        <p style="font-size:13.5px;color:var(--accent-2);line-height:1.6;margin-bottom:8px">Don't have an invite code yet?</p>
-        <a id="bot-link" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;padding:8px 18px;border-radius:20px;font-size:13.5px;font-weight:700;text-decoration:none">
-          <span>✈</span> Request one on Telegram
-        </a>
-        <p style="font-size:12px;color:var(--muted);margin-top:8px">Once approved, paste the code below</p>
-      </div>
       <div class="field-group"><label>Display Name</label><input type="text" id="reg-name" placeholder="Your Name" autocomplete="name"></div>
-      <div class="field-group"><label>Username</label><input type="text" id="reg-username" placeholder="username" autocomplete="off" autocapitalize="none"></div>
+      <div class="field-group"><label>Username</label><input type="text" id="reg-username" placeholder="username" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
       <div class="field-group"><label>Phone <span class="optional">(optional)</span></label><input type="tel" id="reg-phone" placeholder="+91 98765 43210"></div>
       <div class="field-group"><label>Password</label><input type="password" id="reg-password" placeholder="min 6 characters" autocomplete="new-password"></div>
-      <div class="field-group"><label>Invite Code <span class="optional">*required*</span></label><input type="text" id="reg-invite" placeholder="Paste invite code" autocomplete="off" autocapitalize="none"></div>
+      <div class="field-group"><label>Invite Code <span class="optional">*required*</span></label><input type="text" id="reg-invite" placeholder="Paste your invite code" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
       <div class="field-group">
-        <label>Human check</label>
+        <label>Are you human? 🤖</label>
         <div class="captcha-box">
           <span class="captcha-question" id="captcha-q"></span>
-          <input type="number" class="captcha-input" id="captcha-answer" placeholder="?" autocomplete="off">
-          <span class="captcha-refresh" onclick="refreshCaptcha()" title="New question">↻</span>
+          <input type="number" class="captcha-input" id="captcha-answer" placeholder="?" autocomplete="off" inputmode="numeric">
+          <span class="captcha-refresh" onclick="refreshCaptcha()">↻</span>
         </div>
       </div>
       <div class="auth-error" id="reg-error"></div>
       <button type="submit" class="btn-primary">Create Account</button>
     </form>
   </div>
+  <p style="margin-top:1.5rem;font-size:12px;color:var(--muted);text-align:center">
+    Developed by <strong>Shubham Khidwalia</strong> ·
+    <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank" style="color:var(--accent)">Open Source</a>
+  </p>
 </div>
 
 <!-- App -->
 <div id="app" class="app hidden">
 
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-      <button class="icon-btn" id="menu-btn">☰</button>
-      <span class="sidebar-title">OpenWave</span>
-      <div class="sidebar-actions">
-        <button class="icon-btn" id="starred-btn" title="Starred messages">⭐</button>
-        <button class="icon-btn" id="compose-btn" title="New chat">✏</button>
-        <button class="icon-btn" id="theme-btn">◐</button>
-      </div>
-    </div>
-    <div class="search-bar">
-      <span class="search-icon">⌕</span>
-      <input type="text" id="search-input" placeholder="Search chats…">
-      <button class="clear-search hidden" id="clear-search">✕</button>
-    </div>
-    <div id="chat-list" class="chat-list"></div>
-  </aside>
-
-  <div id="menu-overlay" class="menu-overlay" onclick="App.closeMenu()"></div>
-  <div id="menu-drawer" class="menu-drawer">
-    <div class="menu-profile">
-      <div class="menu-avatar" id="menu-avatar"></div>
-      <div>
-        <div class="menu-display-name" id="menu-display-name"></div>
-        <div class="menu-username" id="menu-username"></div>
-      </div>
-    </div>
-    <div class="menu-items">
-      <button class="menu-item" onclick="App.showContacts()">👥 Contacts</button>
-      <button class="menu-item" onclick="App.showNewGroup()">👫 New Group</button>
-      <button class="menu-item" onclick="App.showStarred()">⭐ Starred Messages</button>
-      <button class="menu-item" onclick="App.showSettings()">⚙ Settings</button>
-      <div class="menu-divider"></div>
-      <button class="menu-item danger" onclick="App.logout()">↩ Sign Out</button>
-    </div>
+  <!-- Quote Banner -->
+  <div class="quote-banner">
+    <strong>Today's thought</strong>
+    "Life is what we try to live and remain stuck in surviving it"
   </div>
 
-  <main id="chat-area" class="chat-area">
-    <div id="splash" class="splash">
-      <div class="splash-icon">🌊</div>
-      <h2>OpenWave</h2>
-      <p>Select a conversation or start a new one</p>
+  <div class="app-body">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <button class="icon-btn" id="menu-btn" aria-label="Menu">☰</button>
+        <span class="sidebar-title">OpenWave</span>
+        <div style="display:flex;gap:2px">
+          <button class="icon-btn" id="starred-btn" title="Starred">⭐</button>
+          <button class="icon-btn" id="compose-btn" title="New chat">✏</button>
+          <button class="icon-btn" id="theme-btn" title="Theme">◐</button>
+        </div>
+      </div>
+      <div class="search-bar">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search-input" placeholder="Search…" autocomplete="off">
+        <button class="clear-search hidden" id="clear-search">✕</button>
+      </div>
+      <div id="chat-list" class="chat-list"></div>
+    </aside>
+
+    <!-- Menu Overlay & Drawer -->
+    <div id="menu-overlay" class="menu-overlay" onclick="App.closeMenu()"></div>
+    <div id="menu-drawer" class="menu-drawer">
+      <div class="menu-profile" onclick="App.showSettings()">
+        <div class="menu-avatar" id="menu-avatar"></div>
+        <div>
+          <div class="menu-display-name" id="menu-display-name"></div>
+          <div class="menu-username" id="menu-username"></div>
+          <div class="menu-phone" id="menu-phone"></div>
+        </div>
+      </div>
+      <div class="menu-items">
+        <button class="menu-item" onclick="App.showContacts()"><span class="menu-item-icon">👥</span><span class="menu-item-label">New Message</span></button>
+        <button class="menu-item" onclick="App.showNewGroup()"><span class="menu-item-icon">👫</span><span class="menu-item-label">New Group</span></button>
+        <button class="menu-item" onclick="App.showStarred()"><span class="menu-item-icon">⭐</span><span class="menu-item-label">Starred Messages</span></button>
+        <button class="menu-item" onclick="App.showSettings()"><span class="menu-item-icon">⚙</span><span class="menu-item-label">Settings</span></button>
+        <div class="menu-divider"></div>
+        <button class="menu-item danger" onclick="App.logout()"><span class="menu-item-icon">↩</span><span class="menu-item-label">Sign Out</span></button>
+      </div>
+      <div class="menu-footer">
+        <p>Developed by <strong>Shubham Khidwalia</strong><br>
+        <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank">Open Source on GitHub</a></p>
+      </div>
     </div>
 
-    <div id="chat-view" class="chat-view hidden">
-      <div class="chat-header">
-        <button class="back-btn" onclick="App.closeChat()">‹</button>
-        <div class="chat-header-avatar" id="chat-header-avatar" onclick="App.showChatInfo()"></div>
-        <div class="chat-header-info" onclick="App.showChatInfo()">
-          <div class="chat-header-name" id="chat-header-name"></div>
-          <div class="chat-header-status" id="chat-header-status"></div>
-        </div>
-        <div class="chat-header-actions">
-          <button class="icon-btn" id="chat-search-btn" title="Search">⌕</button>
-          <button class="icon-btn" id="chat-menu-btn">⋮</button>
+    <!-- Chat Area -->
+    <main id="chat-area" class="chat-area">
+      <div id="splash" class="splash">
+        <div class="splash-icon">🌊</div>
+        <h2>OpenWave</h2>
+        <p>Select a conversation or start a new one</p>
+        <div class="splash-actions">
+          <button class="splash-btn" onclick="App.showContacts()">✏ New Message</button>
+          <button class="splash-btn" onclick="App.showNewGroup()">👫 New Group</button>
         </div>
       </div>
 
-      <!-- In-chat search -->
-      <div id="chat-search-bar" class="chat-search-bar">
-        <div class="chat-search-inner">
-          <input type="text" id="chat-search-input" placeholder="Search in conversation…" oninput="App.searchInChat(this.value)">
-          <span class="search-count" id="search-count"></span>
-          <button class="icon-btn" onclick="App.closeChatSearch()">✕</button>
+      <div id="chat-view" class="chat-view hidden">
+        <div class="chat-header">
+          <button class="back-btn" onclick="App.closeChat()">‹</button>
+          <div class="chat-header-avatar" id="chat-header-avatar" onclick="App.showChatInfo()"></div>
+          <div class="chat-header-info" onclick="App.showChatInfo()">
+            <div class="chat-header-name" id="chat-header-name"></div>
+            <div class="chat-header-status" id="chat-header-status"></div>
+          </div>
+          <div class="chat-header-actions">
+            <button class="icon-btn" id="chat-search-btn">⌕</button>
+            <button class="icon-btn" id="chat-menu-btn">⋮</button>
+          </div>
+        </div>
+
+        <div id="chat-search-bar" class="chat-search-bar">
+          <div class="chat-search-inner">
+            <input type="text" id="chat-search-input" placeholder="Search in conversation…" oninput="App.searchInChat(this.value)">
+            <span class="search-count" id="search-count"></span>
+            <button class="icon-btn" onclick="App.closeChatSearch()">✕</button>
+          </div>
+        </div>
+
+        <div id="expiry-banner" class="expiry-banner hidden">
+          ⏱ <span id="expiry-text">Disappearing messages on</span>
+        </div>
+
+        <div id="chat-dropdown" class="dropdown hidden">
+          <div class="dropdown-item" onclick="App.showChatInfo()">ℹ️ Chat info</div>
+          <div class="dropdown-item" onclick="App.toggleDisappearing()">⏱ Disappearing messages</div>
+          <div class="dropdown-item" onclick="App.clearChatHistory()">🗑 Clear history</div>
+          <div class="dropdown-item danger" onclick="App.deleteChat()">✕ Delete chat</div>
+        </div>
+
+        <div id="messages-list" class="messages-list"></div>
+
+        <div id="typing-banner" class="typing-banner hidden">
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+          <span id="typing-text"></span>
+        </div>
+
+        <div id="reply-preview" class="reply-preview hidden">
+          <div class="reply-bar"></div>
+          <div class="reply-content">
+            <div class="reply-to-name" id="reply-to-name"></div>
+            <div class="reply-to-text" id="reply-to-text"></div>
+          </div>
+          <button class="icon-btn" onclick="App.cancelReply()">✕</button>
+        </div>
+
+        <div class="input-area">
+          <button class="attach-btn" id="attach-btn">📎</button>
+          <input type="file" id="file-input" hidden accept="image/*,video/*,audio/*,.pdf,.zip,.txt">
+          <div class="input-wrap">
+            <textarea id="msg-input" placeholder="Message…" rows="1"></textarea>
+            <button class="emoji-btn" id="emoji-btn">😊</button>
+          </div>
+          <span class="record-timer" id="record-timer">0:00</span>
+          <button class="voice-btn" id="voice-btn">🎤</button>
+          <button class="send-btn idle" id="send-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+          </button>
         </div>
       </div>
+    </main>
 
-      <div id="chat-dropdown" class="dropdown hidden">
-        <div class="dropdown-item" onclick="App.clearChatHistory()">🗑 Clear history</div>
-        <div class="dropdown-item danger" onclick="App.deleteChat()">✕ Delete chat</div>
-      </div>
+  </div><!-- .app-body -->
 
-      <div id="messages-list" class="messages-list"></div>
+  <!-- Footer -->
+  <div class="app-footer">
+    Developed by <strong>Shubham Khidwalia</strong> ·
+    <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank">Open Source</a>
+  </div>
 
-      <div id="typing-banner" class="typing-banner hidden">
-        <div class="typing-dots"><span></span><span></span><span></span></div>
-        <span id="typing-text"></span>
-      </div>
-
-      <div id="reply-preview" class="reply-preview hidden">
-        <div class="reply-bar"></div>
-        <div class="reply-content">
-          <div class="reply-to-name" id="reply-to-name"></div>
-          <div class="reply-to-text" id="reply-to-text"></div>
-        </div>
-        <button class="icon-btn" onclick="App.cancelReply()">✕</button>
-      </div>
-
-      <div class="input-area">
-        <button class="attach-btn" id="attach-btn">📎</button>
-        <input type="file" id="file-input" hidden accept="image/*,video/*,audio/*,.pdf,.zip,.txt">
-        <div class="input-wrap">
-          <textarea id="msg-input" placeholder="Message…" rows="1"></textarea>
-          <button class="emoji-btn" id="emoji-btn">😊</button>
-        </div>
-        <span class="record-timer" id="record-timer">0:00</span>
-        <button class="voice-btn" id="voice-btn" title="Voice message">🎤</button>
-        <button class="send-btn idle" id="send-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
-        </button>
-      </div>
-    </div>
-  </main>
-</div>
+</div><!-- #app -->
 
 <!-- Reaction picker -->
 <div id="reaction-picker" class="reaction-picker">
-  <span class="reaction-emoji" onclick="App.addReaction('❤️')">❤️</span>
-  <span class="reaction-emoji" onclick="App.addReaction('👍')">👍</span>
-  <span class="reaction-emoji" onclick="App.addReaction('😂')">😂</span>
-  <span class="reaction-emoji" onclick="App.addReaction('😮')">😮</span>
-  <span class="reaction-emoji" onclick="App.addReaction('😢')">😢</span>
-  <span class="reaction-emoji" onclick="App.addReaction('🙏')">🙏</span>
+  <span class="reaction-emoji" data-emoji="❤️">❤️</span>
+  <span class="reaction-emoji" data-emoji="👍">👍</span>
+  <span class="reaction-emoji" data-emoji="😂">😂</span>
+  <span class="reaction-emoji" data-emoji="😮">😮</span>
+  <span class="reaction-emoji" data-emoji="😢">😢</span>
+  <span class="reaction-emoji" data-emoji="🙏">🙏</span>
 </div>
 
 <!-- Modals -->
 <div id="modal-new-chat" class="modal hidden">
   <div class="modal-box">
     <div class="modal-header"><h3>New Message</h3><button class="icon-btn" onclick="App.closeModal('modal-new-chat')">✕</button></div>
-    <div class="modal-search"><input type="text" id="user-search-input" placeholder="Search by username…" oninput="App.searchUsers(this.value)" autocapitalize="none"></div>
+    <div class="modal-search"><input type="text" id="user-search-input" placeholder="Search by username…" oninput="App.searchUsers(this.value)" autocapitalize="none" spellcheck="false"></div>
     <div id="user-search-results" class="user-list"></div>
   </div>
 </div>
@@ -200,33 +234,19 @@
   </div>
 </div>
 
+<!-- WhatsApp-style profile sheet -->
 <div id="modal-chat-info" class="modal hidden">
-  <div class="modal-box">
+  <div class="modal-box" style="max-height:95vh;max-height:95dvh">
     <div class="modal-header"><h3 id="info-title">Profile</h3><button class="icon-btn" onclick="App.closeModal('modal-chat-info')">✕</button></div>
-    <div class="profile-header">
-      <div class="profile-avatar" id="info-avatar"></div>
-      <div class="profile-name" id="info-name"></div>
-      <div class="profile-sub" id="info-sub"></div>
-    </div>
-    <div class="profile-section" id="info-bio-section"><div class="profile-label">Bio</div><div class="profile-value" id="info-bio"></div></div>
-    <div class="profile-actions" id="info-actions"></div>
+    <div id="profile-sheet-content" class="profile-sheet" style="flex:1;overflow:hidden;display:flex;flex-direction:column"></div>
   </div>
 </div>
 
+<!-- Settings -->
 <div id="modal-settings" class="modal hidden">
-  <div class="modal-box">
+  <div class="modal-box" style="max-height:95vh;max-height:95dvh">
     <div class="modal-header"><h3>Settings</h3><button class="icon-btn" onclick="App.closeModal('modal-settings')">✕</button></div>
-    <div class="settings-body">
-      <div class="settings-avatar-wrap">
-        <div class="settings-avatar" id="settings-avatar" onclick="document.getElementById('avatar-file').click()"></div>
-        <div class="settings-avatar-hint">Tap to change photo</div>
-        <input type="file" id="avatar-file" hidden accept="image/*" onchange="App.uploadAvatar(this)">
-      </div>
-      <div class="field-group"><label>Display Name</label><input type="text" id="settings-name"></div>
-      <div class="field-group"><label>Bio</label><textarea id="settings-bio" rows="3" placeholder="Something about you…"></textarea></div>
-      <div class="settings-info" id="settings-username-display"></div>
-      <button class="btn-primary" onclick="App.saveSettings()">Save Changes</button>
-    </div>
+    <div id="settings-content" class="settings-body" style="flex:1;overflow-y:auto"></div>
   </div>
 </div>
 
@@ -237,7 +257,6 @@
   </div>
 </div>
 
-<!-- Forward modal -->
 <div id="modal-forward" class="modal hidden">
   <div class="modal-box">
     <div class="modal-header"><h3>Forward to…</h3><button class="icon-btn" onclick="App.closeModal('modal-forward')">✕</button></div>
@@ -246,7 +265,7 @@
 </div>
 
 <div id="install-banner" class="install-banner">
-  <span>📲 Add OpenWave to your home screen</span>
+  <span>📲 Add to home screen</span>
   <button id="install-btn">Install</button>
   <button class="dismiss" onclick="document.getElementById('install-banner').classList.remove('show')">✕</button>
 </div>
@@ -254,42 +273,33 @@
 <div id="toast" class="toast hidden"></div>
 
 <script>
-// ── Captcha ──────────────────────────────────────────────────────────────
-let _ca = 0, _cb = 0, _cop = '+';
-function refreshCaptcha() {
-  const ops = ['+','-','×'];
-  _cop = ops[Math.floor(Math.random()*ops.length)];
-  _ca = Math.floor(Math.random()*12)+1;
-  _cb = Math.floor(Math.random()*12)+1;
-  if (_cop==='-' && _cb > _ca) { const t=_ca; _ca=_cb; _cb=t; }
-  document.getElementById('captcha-q').textContent = `${_ca} ${_cop} ${_cb} =`;
-  document.getElementById('captcha-answer').value = '';
+// Captcha
+let _ca=0,_cb=0,_cop='+';
+function refreshCaptcha(){
+  const ops=['+','-','×'];
+  _cop=ops[Math.floor(Math.random()*ops.length)];
+  _ca=Math.floor(Math.random()*12)+1;
+  _cb=Math.floor(Math.random()*12)+1;
+  if(_cop==='-'&&_cb>_ca){const t=_ca;_ca=_cb;_cb=t;}
+  document.getElementById('captcha-q').textContent=`${_ca} ${_cop} ${_cb} =`;
+  document.getElementById('captcha-answer').value='';
 }
-function checkCaptcha() {
-  const ans = parseInt(document.getElementById('captcha-answer').value);
-  const correct = _cop==='+'?_ca+_cb:_cop==='-'?_ca-_cb:_ca*_cb;
-  return ans === correct;
+function checkCaptcha(){
+  const ans=parseInt(document.getElementById('captcha-answer').value);
+  const ok=_cop==='+'?_ca+_cb:_cop==='-'?_ca-_cb:_ca*_cb;
+  return ans===ok;
 }
-window.addEventListener('DOMContentLoaded', refreshCaptcha);
+window.addEventListener('DOMContentLoaded',refreshCaptcha);
+
+// PWA
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;setTimeout(()=>document.getElementById('install-banner').classList.add('show'),5000);});
+document.getElementById('install-btn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
 <script src="/js/api.js"></script>
 <script src="/js/ws.js"></script>
 <script src="/js/ui.js"></script>
 <script src="/js/app.js"></script>
-<script>
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault(); deferredPrompt = e;
-  setTimeout(() => document.getElementById('install-banner').classList.add('show'), 4000);
-});
-document.getElementById('install-btn').addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById('install-banner').classList.remove('show');
-});
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
-</script>
 </body>
 </html>
