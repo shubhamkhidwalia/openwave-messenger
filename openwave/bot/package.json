@@ -1,9 +1,1 @@
-{
-  "name": "openwave-invite-bot",
-  "version": "1.0.0",
-  "description": "Telegram invite request bot for OpenWave",
-  "main": "bot.js",
-  "scripts": { "start": "node bot.js" },
-  "dependencies": {},
-  "engines": { "node": ">=18.0.0" }
-}
+{"name":"openwave-invite-bot","version":"1.0.0","main":"bot.js","scripts":{"start":"node bot.js"},"dependencies":{},"engines":{"node":">=18.0.0"}}

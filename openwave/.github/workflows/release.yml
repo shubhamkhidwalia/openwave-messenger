@@ -1,31 +1,15 @@
 name: Release
-
 on:
   push:
-    tags:
-      - 'v*'
-
+    tags: ['v*']
 permissions:
   contents: write
-
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Build release archive
-        run: |
-          zip -r openwave-${{ github.ref_name }}.zip openwave \
-            --exclude "openwave/backend/node_modules/*" \
-            --exclude "openwave/backend/data/*" \
-            --exclude "openwave/backend/*.db*" \
-            --exclude "openwave/.git/*"
-
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
+      - run: zip -r openwave-${{ github.ref_name }}.zip openwave --exclude "openwave/backend/node_modules/*" "openwave/backend/data/*"
+      - uses: softprops/action-gh-release@v2
         with:
-          name: ${{ github.ref_name }}
-          body: |
-            See [README](https://github.com/shubhamkhidwalia/openwave-messenger#readme) for setup instructions.
           files: openwave-${{ github.ref_name }}.zip

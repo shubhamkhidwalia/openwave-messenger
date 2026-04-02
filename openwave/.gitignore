@@ -1,23 +1,9 @@
-# Dependencies
 node_modules/
-
-# Environment — NEVER commit this
 .env
 backend/.env
-
-# Local database files
 *.db
 *.db-shm
 *.db-wal
-local.db*
-
-# Uploaded files (stored on Cloudinary in production)
 backend/data/
-
-# OS files
 .DS_Store
-Thumbs.db
-
-# Logs
 *.log
-npm-debug.log*

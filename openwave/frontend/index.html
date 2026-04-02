@@ -58,25 +58,19 @@
   </div>
   <p style="margin-top:1.5rem;font-size:12px;color:var(--muted);text-align:center">
     Developed by <strong>Shubham Khidwalia</strong> ·
-    <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank" style="color:var(--accent)">Open Source</a>
+    <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank" style="color:var(--accent-2)">Open Source</a>
   </p>
 </div>
 
 <!-- App -->
 <div id="app" class="app hidden">
-
-  <!-- Quote Banner -->
-  <div class="quote-banner">
-    <strong>Today's thought</strong>
-    "Life is what we try to live and remain stuck in surviving it"
-  </div>
+  <div class="quote-banner"><strong>Today's thought</strong>"Life is what we try to live and remain stuck in surviving it"</div>
 
   <div class="app-body">
-
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar">
       <div class="sidebar-header">
-        <button class="icon-btn" id="menu-btn" aria-label="Menu">☰</button>
+        <button class="icon-btn" id="menu-btn">☰</button>
         <span class="sidebar-title">OpenWave</span>
         <div style="display:flex;gap:2px">
           <button class="icon-btn" id="starred-btn" title="Starred">⭐</button>
@@ -92,7 +86,7 @@
       <div id="chat-list" class="chat-list"></div>
     </aside>
 
-    <!-- Menu Overlay & Drawer -->
+    <!-- Menu overlay + drawer -->
     <div id="menu-overlay" class="menu-overlay" onclick="App.closeMenu()"></div>
     <div id="menu-drawer" class="menu-drawer">
       <div class="menu-profile" onclick="App.showSettings()">
@@ -104,12 +98,12 @@
         </div>
       </div>
       <div class="menu-items">
-        <button class="menu-item" onclick="App.showContacts()"><span class="menu-item-icon">👥</span><span class="menu-item-label">New Message</span></button>
-        <button class="menu-item" onclick="App.showNewGroup()"><span class="menu-item-icon">👫</span><span class="menu-item-label">New Group</span></button>
-        <button class="menu-item" onclick="App.showStarred()"><span class="menu-item-icon">⭐</span><span class="menu-item-label">Starred Messages</span></button>
-        <button class="menu-item" onclick="App.showSettings()"><span class="menu-item-icon">⚙</span><span class="menu-item-label">Settings</span></button>
+        <button class="menu-item" onclick="App.showContacts()"><span class="menu-item-icon">👥</span>New Message</button>
+        <button class="menu-item" onclick="App.showNewGroup()"><span class="menu-item-icon">👫</span>New Group</button>
+        <button class="menu-item" onclick="App.showStarred()"><span class="menu-item-icon">⭐</span>Starred Messages</button>
+        <button class="menu-item" onclick="App.showSettings()"><span class="menu-item-icon">⚙</span>Settings</button>
         <div class="menu-divider"></div>
-        <button class="menu-item danger" onclick="App.logout()"><span class="menu-item-icon">↩</span><span class="menu-item-label">Sign Out</span></button>
+        <button class="menu-item danger" onclick="App.logout()"><span class="menu-item-icon">↩</span>Sign Out</button>
       </div>
       <div class="menu-footer">
         <p>Developed by <strong>Shubham Khidwalia</strong><br>
@@ -137,7 +131,7 @@
             <div class="chat-header-name" id="chat-header-name"></div>
             <div class="chat-header-status" id="chat-header-status"></div>
           </div>
-          <div class="chat-header-actions">
+          <div class="chat-header-actions" style="display:flex;gap:0;flex-shrink:0">
             <button class="icon-btn" id="chat-search-btn">⌕</button>
             <button class="icon-btn" id="chat-menu-btn">⋮</button>
           </div>
@@ -151,9 +145,7 @@
           </div>
         </div>
 
-        <div id="expiry-banner" class="expiry-banner hidden">
-          ⏱ <span id="expiry-text">Disappearing messages on</span>
-        </div>
+        <div id="expiry-banner" class="expiry-banner hidden">⏱ <span id="expiry-text"></span></div>
 
         <div id="chat-dropdown" class="dropdown hidden">
           <div class="dropdown-item" onclick="App.showChatInfo()">ℹ️ Chat info</div>
@@ -193,16 +185,10 @@
         </div>
       </div>
     </main>
-
-  </div><!-- .app-body -->
-
-  <!-- Footer -->
-  <div class="app-footer">
-    Developed by <strong>Shubham Khidwalia</strong> ·
-    <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank">Open Source</a>
   </div>
 
-</div><!-- #app -->
+  <div class="app-footer">Developed by <strong>Shubham Khidwalia</strong> · <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank">Open Source</a></div>
+</div>
 
 <!-- Reaction picker -->
 <div id="reaction-picker" class="reaction-picker">
@@ -215,54 +201,17 @@
 </div>
 
 <!-- Modals -->
-<div id="modal-new-chat" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-header"><h3>New Message</h3><button class="icon-btn" onclick="App.closeModal('modal-new-chat')">✕</button></div>
-    <div class="modal-search"><input type="text" id="user-search-input" placeholder="Search by username…" oninput="App.searchUsers(this.value)" autocapitalize="none" spellcheck="false"></div>
-    <div id="user-search-results" class="user-list"></div>
-  </div>
-</div>
+<div id="modal-new-chat" class="modal hidden"><div class="modal-box"><div class="modal-header"><h3>New Message</h3><button class="icon-btn" onclick="App.closeModal('modal-new-chat')">✕</button></div><div class="modal-search"><input type="text" id="user-search-input" placeholder="Search by username…" oninput="App.searchUsers(this.value)" autocapitalize="none" spellcheck="false"></div><div id="user-search-results" class="user-list"></div></div></div>
 
-<div id="modal-new-group" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-header"><h3>New Group</h3><button class="icon-btn" onclick="App.closeModal('modal-new-group')">✕</button></div>
-    <div class="modal-search"><input type="text" id="group-name-input" placeholder="Group name…"></div>
-    <div class="modal-search" style="border-top:none"><input type="text" id="group-user-search" placeholder="Add members…" oninput="App.searchGroupUsers(this.value)" autocapitalize="none"></div>
-    <div id="selected-members" class="selected-members"></div>
-    <div id="group-user-results" class="user-list"></div>
-    <div class="modal-footer"><button class="btn-primary" onclick="App.createGroup()">Create Group</button></div>
-  </div>
-</div>
+<div id="modal-new-group" class="modal hidden"><div class="modal-box"><div class="modal-header"><h3>New Group</h3><button class="icon-btn" onclick="App.closeModal('modal-new-group')">✕</button></div><div class="modal-search"><input type="text" id="group-name-input" placeholder="Group name…"></div><div class="modal-search" style="border-top:none"><input type="text" id="group-user-search" placeholder="Add members…" oninput="App.searchGroupUsers(this.value)" autocapitalize="none"></div><div id="selected-members" class="selected-members"></div><div id="group-user-results" class="user-list"></div><div class="modal-footer"><button class="btn-primary" onclick="App.createGroup()">Create Group</button></div></div></div>
 
-<!-- WhatsApp-style profile sheet -->
-<div id="modal-chat-info" class="modal hidden">
-  <div class="modal-box" style="max-height:95vh;max-height:95dvh">
-    <div class="modal-header"><h3 id="info-title">Profile</h3><button class="icon-btn" onclick="App.closeModal('modal-chat-info')">✕</button></div>
-    <div id="profile-sheet-content" class="profile-sheet" style="flex:1;overflow:hidden;display:flex;flex-direction:column"></div>
-  </div>
-</div>
+<div id="modal-chat-info" class="modal hidden"><div class="modal-box" style="max-height:95vh;max-height:95dvh"><div class="modal-header"><h3 id="info-title">Profile</h3><button class="icon-btn" onclick="App.closeModal('modal-chat-info')">✕</button></div><div id="profile-sheet-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column"></div></div></div>
 
-<!-- Settings -->
-<div id="modal-settings" class="modal hidden">
-  <div class="modal-box" style="max-height:95vh;max-height:95dvh">
-    <div class="modal-header"><h3>Settings</h3><button class="icon-btn" onclick="App.closeModal('modal-settings')">✕</button></div>
-    <div id="settings-content" class="settings-body" style="flex:1;overflow-y:auto"></div>
-  </div>
-</div>
+<div id="modal-settings" class="modal hidden"><div class="modal-box" style="max-height:95vh;max-height:95dvh"><div class="modal-header"><h3>Settings</h3><button class="icon-btn" onclick="App.closeModal('modal-settings')">✕</button></div><div id="settings-content" class="settings-body" style="flex:1"></div></div></div>
 
-<div id="modal-starred" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-header"><h3>⭐ Starred Messages</h3><button class="icon-btn" onclick="App.closeModal('modal-starred')">✕</button></div>
-    <div id="starred-list" class="starred-list"></div>
-  </div>
-</div>
+<div id="modal-starred" class="modal hidden"><div class="modal-box"><div class="modal-header"><h3>⭐ Starred Messages</h3><button class="icon-btn" onclick="App.closeModal('modal-starred')">✕</button></div><div id="starred-list" class="starred-list"></div></div></div>
 
-<div id="modal-forward" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-header"><h3>Forward to…</h3><button class="icon-btn" onclick="App.closeModal('modal-forward')">✕</button></div>
-    <div id="forward-chat-list" class="user-list"></div>
-  </div>
-</div>
+<div id="modal-forward" class="modal hidden"><div class="modal-box"><div class="modal-header"><h3>Forward to…</h3><button class="icon-btn" onclick="App.closeModal('modal-forward')">✕</button></div><div id="forward-chat-list" class="user-list"></div></div></div>
 
 <div id="install-banner" class="install-banner">
   <span>📲 Add to home screen</span>
@@ -275,22 +224,9 @@
 <script>
 // Captcha
 let _ca=0,_cb=0,_cop='+';
-function refreshCaptcha(){
-  const ops=['+','-','×'];
-  _cop=ops[Math.floor(Math.random()*ops.length)];
-  _ca=Math.floor(Math.random()*12)+1;
-  _cb=Math.floor(Math.random()*12)+1;
-  if(_cop==='-'&&_cb>_ca){const t=_ca;_ca=_cb;_cb=t;}
-  document.getElementById('captcha-q').textContent=`${_ca} ${_cop} ${_cb} =`;
-  document.getElementById('captcha-answer').value='';
-}
-function checkCaptcha(){
-  const ans=parseInt(document.getElementById('captcha-answer').value);
-  const ok=_cop==='+'?_ca+_cb:_cop==='-'?_ca-_cb:_ca*_cb;
-  return ans===ok;
-}
+function refreshCaptcha(){const ops=['+','-','×'];_cop=ops[Math.floor(Math.random()*ops.length)];_ca=Math.floor(Math.random()*12)+1;_cb=Math.floor(Math.random()*12)+1;if(_cop==='-'&&_cb>_ca){const t=_ca;_ca=_cb;_cb=t;}document.getElementById('captcha-q').textContent=`${_ca} ${_cop} ${_cb} =`;document.getElementById('captcha-answer').value='';}
+function checkCaptcha(){const ans=parseInt(document.getElementById('captcha-answer').value);const ok=_cop==='+'?_ca+_cb:_cop==='-'?_ca-_cb:_ca*_cb;return ans===ok;}
 window.addEventListener('DOMContentLoaded',refreshCaptcha);
-
 // PWA
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;setTimeout(()=>document.getElementById('install-banner').classList.add('show'),5000);});
