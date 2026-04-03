@@ -379,3 +379,107 @@ html,body{overscroll-behavior:none}
   .messages-list{padding:24px 48px 14px}
   .input-area{padding:14px 40px}
 }
+
+/* ══ MOBILE-ONLY OVERRIDES ═══════════════════════════════════════════════════
+   This app is designed exclusively for mobile. Desktop gets a centered
+   phone-frame view so it still works on a laptop browser if needed.
+════════════════════════════════════════════════════════════════════════════ */
+
+/* Force mobile layout always */
+.sidebar {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  transform: none !important;
+  z-index: 10;
+}
+
+.chat-area {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  transform: translateX(100%) !important;
+  z-index: 20;
+}
+
+.chat-area.open {
+  transform: translateX(0) !important;
+}
+
+/* Back button always visible */
+.back-btn {
+  display: flex !important;
+}
+
+/* Footer only visible on desktop view (inside phone frame) */
+.app-footer {
+  display: none;
+}
+
+/* ── Desktop: show a centered phone frame ────────────────────────────────── */
+@media (min-width: 600px) {
+  body {
+    background: #0A0A0F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  /* Phone frame container */
+  .app,
+  #auth-screen {
+    width: 390px !important;
+    height: 844px !important;
+    max-height: 90vh !important;
+    border-radius: 44px !important;
+    overflow: hidden !important;
+    box-shadow: 0 0 0 10px #1C1C1E, 0 0 0 12px #3A3A3C, 0 40px 80px rgba(0,0,0,.8) !important;
+    position: relative !important;
+  }
+
+  /* Notch simulation */
+  .app::before,
+  #auth-screen::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 34px;
+    background: #1C1C1E;
+    border-radius: 20px;
+    z-index: 9999;
+    pointer-events: none;
+  }
+
+  /* Ensure modal positions are relative to phone frame on desktop */
+  .modal {
+    position: absolute !important;
+  }
+
+  .reaction-picker,
+  .msg-context,
+  .edit-field-overlay {
+    position: absolute !important;
+  }
+
+  #auth-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+  }
+
+  /* Remove desktop hover states — it's touch only */
+  .chat-item:hover,
+  .icon-btn:hover,
+  .menu-item:hover,
+  .dropdown-item:hover,
+  .user-item:hover,
+  .profile-row:hover,
+  .settings-item:hover {
+    background: transparent !important;
+  }
+}

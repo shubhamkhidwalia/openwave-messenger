@@ -25,7 +25,7 @@ app.get('/api/invite/:code',async(req,res)=>{
   res.json({valid:true});
 });
 app.get('/health',(req,res)=>res.json({status:'ok',ts:Date.now(),online:ws.getOnlineUsers().length,storage:process.env.CLOUDINARY_NAME?'cloudinary':'local',database:process.env.TURSO_URL?'turso':'local'}));
-const FRONTEND=path.join(__dirname,'..','frontend');
+const FRONTEND=path.join(__dirname,'frontend');
 if(fs.existsSync(FRONTEND)){app.use(express.static(FRONTEND));app.get('*',(req,res)=>res.sendFile(path.join(FRONTEND,'index.html')));}
 const PORT=process.env.PORT||4000;
 async function start(){try{await initSchema();console.log('DB ready');server.listen(PORT,()=>console.log(`OpenWave running on :${PORT}`));}catch(err){console.error('Start failed:',err.message);process.exit(1);}}

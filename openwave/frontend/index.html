@@ -237,5 +237,34 @@ if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(
 <script src="/js/ws.js"></script>
 <script src="/js/ui.js"></script>
 <script src="/js/app.js"></script>
+<script>
+// On desktop, make modals/overlays position inside the app frame
+if (window.innerWidth >= 600) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const app = document.getElementById('app');
+    // Move modal container reference to app for proper stacking
+    const toast = document.getElementById('toast');
+    const picker = document.getElementById('reaction-picker');
+    if (toast) app?.appendChild(toast);
+    if (picker) app?.appendChild(picker);
+  });
+}
+</script>
+<style>
+@media(min-width:600px){
+  body::after {
+    content: 'OpenWave — Open it on your phone for the best experience';
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: rgba(255,255,255,.3);
+    white-space: nowrap;
+    pointer-events: none;
+    font-family: -apple-system, sans-serif;
+  }
+}
+</style>
 </body>
 </html>
