@@ -1,77 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="OpenWave">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#7C3AED" media="(prefers-color-scheme:light)">
-  <meta name="theme-color" content="#0A0A0F" media="(prefers-color-scheme:dark)">
-  <meta name="format-detection" content="telephone=no">
-  <title>OpenWave</title>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="stylesheet" href="/css/theme.css">
-  <link rel="stylesheet" href="/css/main.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OpenWave">
+<meta name="theme-color" content="#E50914">
+<meta name="format-detection" content="telephone=no">
+<title>OpenWave</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="/css/theme.css">
+<link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
 
-<!-- Auth -->
-<div id="auth-screen" class="auth-screen">
-  <div class="auth-card">
-    <span class="auth-logo">🌊</span>
-    <h1 class="auth-title">OpenWave</h1>
-    <p class="auth-sub">Private. Secure. Yours.</p>
-    <div id="invite-banner" class="invite-banner" style="display:none">
-      <p>Don't have an invite code?</p>
-      <a id="bot-link" href="#" target="_blank">✈ Request one on Telegram</a>
-      <small>Once approved, paste the code below ↓</small>
-    </div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" data-tab="login">Sign In</button>
-      <button class="auth-tab" data-tab="register">Register</button>
-    </div>
-    <form id="login-form" class="auth-form active">
-      <div class="field-group"><label>Username</label><input type="text" id="login-username" placeholder="your_username" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
-      <div class="field-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"></div>
-      <div class="auth-error" id="login-error"></div>
-      <button type="submit" class="btn-primary">Sign In</button>
-    </form>
-    <form id="register-form" class="auth-form">
-      <div class="field-group"><label>Display Name</label><input type="text" id="reg-name" placeholder="Your Name" autocomplete="name"></div>
-      <div class="field-group"><label>Username</label><input type="text" id="reg-username" placeholder="username" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
-      <div class="field-group"><label>Phone <span class="optional">(optional)</span></label><input type="tel" id="reg-phone" placeholder="+91 98765 43210"></div>
-      <div class="field-group"><label>Password</label><input type="password" id="reg-password" placeholder="min 6 characters" autocomplete="new-password"></div>
-      <div class="field-group"><label>Invite Code <span class="optional">*required*</span></label><input type="text" id="reg-invite" placeholder="Paste your invite code" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
-      <div class="field-group">
-        <label>Are you human? 🤖</label>
-        <div class="captcha-box">
-          <span class="captcha-question" id="captcha-q"></span>
-          <input type="number" class="captcha-input" id="captcha-answer" placeholder="?" autocomplete="off" inputmode="numeric">
-          <span class="captcha-refresh" onclick="refreshCaptcha()">↻</span>
-        </div>
-      </div>
-      <div class="auth-error" id="reg-error"></div>
-      <button type="submit" class="btn-primary">Create Account</button>
-    </form>
+<!-- ─── DESKTOP GATE — only visible on screens ≥600px ─────────────────────── -->
+<div id="desktop-gate">
+  <div class="dg-logo">🌊</div>
+  <div class="dg-wordmark">Open<em>Wave</em></div>
+  <div class="dg-tagline">This app is designed for mobile only.<br>Scan the QR code with your phone to open it.</div>
+  <div class="dg-qr-card">
+    <canvas id="qr-canvas" width="200" height="200"></canvas>
   </div>
-  <p style="margin-top:1.5rem;font-size:12px;color:var(--muted);text-align:center">
-    Developed by <strong>Shubham Khidwalia</strong> ·
-    <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank" style="color:var(--accent-2)">Open Source</a>
-  </p>
+  <div class="dg-scan-hint">📱 Point your phone camera at the code</div>
+  <div class="dg-url" id="dg-url">loading…</div>
+  <div class="dg-steps">
+    <div class="dg-step"><div class="dg-step-num">1</div><span>Open your phone's camera and point at the QR code</span></div>
+    <div class="dg-step"><div class="dg-step-num">2</div><span>Tap the notification that appears</span></div>
+    <div class="dg-step"><div class="dg-step-num">3</div><span>Tap <strong>Add to Home Screen</strong> for the full app experience</span></div>
+  </div>
 </div>
 
-<!-- App -->
+<!-- ─── AUTH ───────────────────────────────────────────────────────────────── -->
+<div id="auth-screen">
+
+  <!-- LOGIN screen -->
+  <div id="auth-login" class="auth-view active">
+    <div class="auth-hero">
+      <span class="auth-logo">🌊</span>
+      <h1 class="auth-app-name">Open<em>Wave</em></h1>
+      <p class="auth-tagline">Private. Invite-only. Yours.</p>
+    </div>
+    <div class="auth-body">
+      <div id="invite-banner" class="invite-tip" style="display:none">
+        <p>Don't have an invite code?</p>
+        <a id="bot-link" href="#" target="_blank">✈ Request on Telegram</a>
+        <small>Paste your code below once approved ↓</small>
+      </div>
+      <form id="login-form">
+        <div class="input-row">
+          <span class="input-ico">👤</span>
+          <input type="text" id="login-username" placeholder="Username"
+            autocomplete="username" autocapitalize="none" spellcheck="false">
+        </div>
+        <div class="input-row">
+          <span class="input-ico">🔒</span>
+          <input type="password" id="login-password" placeholder="Password"
+            autocomplete="current-password">
+        </div>
+        <div class="form-error" id="login-error"></div>
+        <button type="submit" class="btn-main">Sign In</button>
+        <button type="button" class="btn-link" onclick="App.showForgotPassword()">Forgot password?</button>
+        <div class="auth-or"><span>New to OpenWave?</span></div>
+        <button type="button" class="btn-secondary" onclick="App.showRegister()">Create Account</button>
+      </form>
+    </div>
+    <p style="padding:16px;font-size:11px;color:var(--muted);text-align:center;flex-shrink:0">
+      By <strong>Shubham Khidwalia</strong> ·
+      <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank">Open Source</a>
+    </p>
+  </div>
+
+  <!-- REGISTER screen -->
+  <div id="auth-register" class="auth-view">
+    <div class="auth-topbar">
+      <button class="auth-back-btn" onclick="App.showLogin()">‹</button>
+      <span class="auth-topbar-title">Create Account</span>
+      <span style="width:40px"></span>
+    </div>
+    <div class="auth-body">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:48px;filter:drop-shadow(0 0 12px var(--accent-glow))">🌊</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text);margin-top:6px">Join OpenWave</div>
+      </div>
+      <div id="reg-invite-banner" class="invite-tip" style="display:none">
+        <p>Need an invite code?</p>
+        <a id="reg-bot-link" href="#" target="_blank">✈ Request on Telegram</a>
+        <small>Paste the code below once approved ↓</small>
+      </div>
+      <form id="register-form">
+        <div class="input-row">
+          <span class="input-ico">📝</span>
+          <input type="text" id="reg-name" placeholder="Display Name" autocomplete="name">
+        </div>
+        <div class="input-row">
+          <span class="input-ico">@</span>
+          <input type="text" id="reg-username" placeholder="Username"
+            autocomplete="off" autocapitalize="none" spellcheck="false">
+        </div>
+        <div class="input-row">
+          <span class="input-ico">📱</span>
+          <input type="tel" id="reg-phone" placeholder="Phone (optional)">
+        </div>
+        <div class="input-row">
+          <span class="input-ico">🔒</span>
+          <input type="password" id="reg-password" placeholder="Password (min 6 chars)"
+            autocomplete="new-password">
+        </div>
+        <div class="input-row">
+          <span class="input-ico">🎟</span>
+          <input type="text" id="reg-invite" placeholder="Invite Code"
+            autocomplete="off" autocapitalize="none" spellcheck="false">
+        </div>
+        <div class="captcha-row">
+          <span class="captcha-q" id="captcha-q"></span>
+          <input type="number" class="captcha-in" id="captcha-answer"
+            placeholder="?" inputmode="numeric">
+          <span class="captcha-refresh" onclick="refreshCaptcha()">↻</span>
+        </div>
+        <div class="form-error" id="reg-error"></div>
+        <button type="submit" class="btn-main">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD screen -->
+  <div id="auth-forgot" class="auth-view">
+    <div class="auth-topbar">
+      <button class="auth-back-btn" onclick="App.showLogin()">‹</button>
+      <span class="auth-topbar-title">Forgot Password</span>
+      <span style="width:40px"></span>
+    </div>
+    <div class="auth-body">
+      <div class="auth-hero-icon">🔑</div>
+      <div class="auth-body-title">Reset your password</div>
+      <div class="auth-body-sub">Enter your username and we'll generate a reset link for you.</div>
+      <div class="input-row">
+        <span class="input-ico">👤</span>
+        <input type="text" id="forgot-username" placeholder="Your username"
+          autocapitalize="none" spellcheck="false">
+      </div>
+      <div class="form-error" id="forgot-error"></div>
+      <div class="form-success" id="forgot-success"></div>
+      <button class="btn-main" onclick="App.requestPasswordReset()">Send Reset Link</button>
+      <div style="margin-top:8px;text-align:center;font-size:13px;color:var(--muted);line-height:1.6">
+        Reset links expire in 1 hour.<br>Contact the app admin if you need help.
+      </div>
+    </div>
+  </div>
+
+  <!-- RESET PASSWORD screen (reached via ?token= link) -->
+  <div id="auth-reset" class="auth-view">
+    <div class="auth-topbar">
+      <button class="auth-back-btn" onclick="App.showLogin()">‹</button>
+      <span class="auth-topbar-title">Set New Password</span>
+      <span style="width:40px"></span>
+    </div>
+    <div class="auth-body">
+      <div class="auth-hero-icon">🔐</div>
+      <div class="auth-body-title">New password</div>
+      <div class="auth-body-sub">Choose a strong password you haven't used before.</div>
+      <div class="input-row">
+        <span class="input-ico">🔒</span>
+        <input type="password" id="reset-password" placeholder="New password (min 6 chars)"
+          autocomplete="new-password">
+      </div>
+      <div class="input-row">
+        <span class="input-ico">✓</span>
+        <input type="password" id="reset-confirm" placeholder="Confirm new password"
+          autocomplete="new-password">
+      </div>
+      <div class="form-error" id="reset-error"></div>
+      <button class="btn-main" onclick="App.submitPasswordReset()">Update Password</button>
+    </div>
+  </div>
+
+</div><!-- /#auth-screen -->
+
+<!-- ─── APP ────────────────────────────────────────────────────────────────── -->
 <div id="app" class="app hidden">
-  <div class="quote-banner"><strong>Today's thought</strong>"Life is what we try to live and remain stuck in surviving it"</div>
+  <div class="quote-banner">
+    <strong>Today's thought</strong>
+    "Life is what we try to live and remain stuck in surviving it"
+  </div>
 
   <div class="app-body">
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar">
       <div class="sidebar-header">
         <button class="icon-btn" id="menu-btn">☰</button>
-        <span class="sidebar-title">OpenWave</span>
+        <span class="sidebar-title">Open<span>Wave</span></span>
         <div style="display:flex;gap:2px">
           <button class="icon-btn" id="starred-btn" title="Starred">⭐</button>
           <button class="icon-btn" id="compose-btn" title="New chat">✏</button>
@@ -91,38 +210,47 @@
     <div id="menu-drawer" class="menu-drawer">
       <div class="menu-profile" onclick="App.showSettings()">
         <div class="menu-avatar" id="menu-avatar"></div>
-        <div>
-          <div class="menu-display-name" id="menu-display-name"></div>
-          <div class="menu-username" id="menu-username"></div>
-          <div class="menu-phone" id="menu-phone"></div>
-        </div>
+        <div class="menu-display-name" id="menu-display-name"></div>
+        <div class="menu-username" id="menu-username"></div>
       </div>
       <div class="menu-items">
-        <button class="menu-item" onclick="App.showContacts()"><span class="menu-item-icon">👥</span>New Message</button>
-        <button class="menu-item" onclick="App.showNewGroup()"><span class="menu-item-icon">👫</span>New Group</button>
-        <button class="menu-item" onclick="App.showStarred()"><span class="menu-item-icon">⭐</span>Starred Messages</button>
-        <button class="menu-item" onclick="App.showSettings()"><span class="menu-item-icon">⚙</span>Settings</button>
+        <button class="menu-item" onclick="App.showContacts()">
+          <span class="menu-item-icon">💬</span>New Message
+        </button>
+        <button class="menu-item" onclick="App.showNewGroup()">
+          <span class="menu-item-icon">👥</span>New Group
+        </button>
+        <button class="menu-item" onclick="App.showStarred()">
+          <span class="menu-item-icon">⭐</span>Starred Messages
+        </button>
+        <button class="menu-item" onclick="App.showSettings()">
+          <span class="menu-item-icon">⚙</span>Settings
+        </button>
         <div class="menu-divider"></div>
-        <button class="menu-item danger" onclick="App.logout()"><span class="menu-item-icon">↩</span>Sign Out</button>
+        <button class="menu-item danger" onclick="App.logout()">
+          <span class="menu-item-icon">↩</span>Sign Out
+        </button>
       </div>
       <div class="menu-footer">
-        <p>Developed by <strong>Shubham Khidwalia</strong><br>
-        <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank">Open Source on GitHub</a></p>
+        Developed by <strong>Shubham Khidwalia</strong><br>
+        <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank">Open Source on GitHub</a>
       </div>
     </div>
 
     <!-- Chat Area -->
     <main id="chat-area" class="chat-area">
+      <!-- Splash -->
       <div id="splash" class="splash">
         <div class="splash-icon">🌊</div>
         <h2>OpenWave</h2>
         <p>Select a conversation or start a new one</p>
-        <div class="splash-actions">
-          <button class="splash-btn" onclick="App.showContacts()">✏ New Message</button>
-          <button class="splash-btn" onclick="App.showNewGroup()">👫 New Group</button>
+        <div class="splash-btns">
+          <button class="splash-btn" onclick="App.showContacts()">✏ Message</button>
+          <button class="splash-btn" onclick="App.showNewGroup()">👥 Group</button>
         </div>
       </div>
 
+      <!-- Chat view -->
       <div id="chat-view" class="chat-view hidden">
         <div class="chat-header">
           <button class="back-btn" onclick="App.closeChat()">‹</button>
@@ -131,27 +259,28 @@
             <div class="chat-header-name" id="chat-header-name"></div>
             <div class="chat-header-status" id="chat-header-status"></div>
           </div>
-          <div class="chat-header-actions" style="display:flex;gap:0;flex-shrink:0">
-            <button class="icon-btn" id="chat-search-btn">⌕</button>
+          <button class="icon-btn" id="chat-search-btn">⌕</button>
+          <div style="position:relative">
             <button class="icon-btn" id="chat-menu-btn">⋮</button>
+            <div id="chat-dropdown" class="dropdown hidden">
+              <div class="dropdown-item" onclick="App.showChatInfo()">ℹ️ Chat info</div>
+              <div class="dropdown-item" onclick="App.toggleDisappearing()">⏱ Disappearing</div>
+              <div class="dropdown-item" onclick="App.clearChatHistory()">🗑 Clear history</div>
+              <div class="dropdown-item danger" onclick="App.deleteChat()">✕ Delete chat</div>
+            </div>
           </div>
         </div>
 
         <div id="chat-search-bar" class="chat-search-bar">
           <div class="chat-search-inner">
-            <input type="text" id="chat-search-input" placeholder="Search in conversation…" oninput="App.searchInChat(this.value)">
+            <input id="chat-search-input" placeholder="Search in chat…" oninput="App.searchInChat(this.value)">
             <span class="search-count" id="search-count"></span>
             <button class="icon-btn" onclick="App.closeChatSearch()">✕</button>
           </div>
         </div>
 
-        <div id="expiry-banner" class="expiry-banner hidden">⏱ <span id="expiry-text"></span></div>
-
-        <div id="chat-dropdown" class="dropdown hidden">
-          <div class="dropdown-item" onclick="App.showChatInfo()">ℹ️ Chat info</div>
-          <div class="dropdown-item" onclick="App.toggleDisappearing()">⏱ Disappearing messages</div>
-          <div class="dropdown-item" onclick="App.clearChatHistory()">🗑 Clear history</div>
-          <div class="dropdown-item danger" onclick="App.deleteChat()">✕ Delete chat</div>
+        <div id="expiry-banner" class="expiry-banner hidden">
+          ⏱ <span id="expiry-text"></span>
         </div>
 
         <div id="messages-list" class="messages-list"></div>
@@ -175,20 +304,18 @@
           <input type="file" id="file-input" hidden accept="image/*,video/*,audio/*,.pdf,.zip,.txt">
           <div class="input-wrap">
             <textarea id="msg-input" placeholder="Message…" rows="1"></textarea>
-            <button class="emoji-btn" id="emoji-btn">😊</button>
           </div>
           <span class="record-timer" id="record-timer">0:00</span>
           <button class="voice-btn" id="voice-btn">🎤</button>
           <button class="send-btn idle" id="send-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              width="20" height="20"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
           </button>
         </div>
       </div>
     </main>
   </div>
-
-  <div class="app-footer">Developed by <strong>Shubham Khidwalia</strong> · <a href="https://github.com/shubhamkhidwalia/openwave-messenger" target="_blank">Open Source</a></div>
-</div>
+</div><!-- /#app -->
 
 <!-- Reaction picker -->
 <div id="reaction-picker" class="reaction-picker">
@@ -201,70 +328,131 @@
 </div>
 
 <!-- Modals -->
-<div id="modal-new-chat" class="modal hidden"><div class="modal-box"><div class="modal-header"><h3>New Message</h3><button class="icon-btn" onclick="App.closeModal('modal-new-chat')">✕</button></div><div class="modal-search"><input type="text" id="user-search-input" placeholder="Search by username…" oninput="App.searchUsers(this.value)" autocapitalize="none" spellcheck="false"></div><div id="user-search-results" class="user-list"></div></div></div>
+<div id="modal-new-chat" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>New Message</h3>
+      <button class="icon-btn" onclick="App.closeModal('modal-new-chat')">✕</button>
+    </div>
+    <div class="modal-search">
+      <input id="user-search-input" placeholder="Search by username…"
+        oninput="App.searchUsers(this.value)" autocapitalize="none" spellcheck="false">
+    </div>
+    <div id="user-search-results" class="user-list"></div>
+  </div>
+</div>
 
-<div id="modal-new-group" class="modal hidden"><div class="modal-box"><div class="modal-header"><h3>New Group</h3><button class="icon-btn" onclick="App.closeModal('modal-new-group')">✕</button></div><div class="modal-search"><input type="text" id="group-name-input" placeholder="Group name…"></div><div class="modal-search" style="border-top:none"><input type="text" id="group-user-search" placeholder="Add members…" oninput="App.searchGroupUsers(this.value)" autocapitalize="none"></div><div id="selected-members" class="selected-members"></div><div id="group-user-results" class="user-list"></div><div class="modal-footer"><button class="btn-primary" onclick="App.createGroup()">Create Group</button></div></div></div>
+<div id="modal-new-group" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>New Group</h3>
+      <button class="icon-btn" onclick="App.closeModal('modal-new-group')">✕</button>
+    </div>
+    <div class="modal-search">
+      <input id="group-name-input" placeholder="Group name…">
+    </div>
+    <div class="modal-search" style="border-top:none">
+      <input id="group-user-search" placeholder="Add members…"
+        oninput="App.searchGroupUsers(this.value)" autocapitalize="none">
+    </div>
+    <div id="selected-members" class="selected-members"></div>
+    <div id="group-user-results" class="user-list"></div>
+    <div class="modal-footer">
+      <button class="btn-main" onclick="App.createGroup()">Create Group</button>
+    </div>
+  </div>
+</div>
 
-<div id="modal-chat-info" class="modal hidden"><div class="modal-box" style="max-height:95vh;max-height:95dvh"><div class="modal-header"><h3 id="info-title">Profile</h3><button class="icon-btn" onclick="App.closeModal('modal-chat-info')">✕</button></div><div id="profile-sheet-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column"></div></div></div>
+<div id="modal-chat-info" class="modal hidden">
+  <div class="modal-box" style="max-height:95vh;max-height:95dvh">
+    <div class="modal-header">
+      <h3 id="info-title">Profile</h3>
+      <button class="icon-btn" onclick="App.closeModal('modal-chat-info')">✕</button>
+    </div>
+    <div id="profile-sheet-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column"></div>
+  </div>
+</div>
 
-<div id="modal-settings" class="modal hidden"><div class="modal-box" style="max-height:95vh;max-height:95dvh"><div class="modal-header"><h3>Settings</h3><button class="icon-btn" onclick="App.closeModal('modal-settings')">✕</button></div><div id="settings-content" class="settings-body" style="flex:1"></div></div></div>
+<div id="modal-settings" class="modal hidden">
+  <div class="modal-box" style="max-height:95vh;max-height:95dvh">
+    <div class="modal-header">
+      <h3>Settings</h3>
+      <button class="icon-btn" onclick="App.closeModal('modal-settings')">✕</button>
+    </div>
+    <div id="settings-content" class="settings-body"></div>
+  </div>
+</div>
 
-<div id="modal-starred" class="modal hidden"><div class="modal-box"><div class="modal-header"><h3>⭐ Starred Messages</h3><button class="icon-btn" onclick="App.closeModal('modal-starred')">✕</button></div><div id="starred-list" class="starred-list"></div></div></div>
+<div id="modal-starred" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>⭐ Starred Messages</h3>
+      <button class="icon-btn" onclick="App.closeModal('modal-starred')">✕</button>
+    </div>
+    <div id="starred-list" class="starred-list"></div>
+  </div>
+</div>
 
-<div id="modal-forward" class="modal hidden"><div class="modal-box"><div class="modal-header"><h3>Forward to…</h3><button class="icon-btn" onclick="App.closeModal('modal-forward')">✕</button></div><div id="forward-chat-list" class="user-list"></div></div></div>
-
-<div id="install-banner" class="install-banner">
-  <span>📲 Add to home screen</span>
-  <button id="install-btn">Install</button>
-  <button class="dismiss" onclick="document.getElementById('install-banner').classList.remove('show')">✕</button>
+<div id="modal-forward" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Forward to…</h3>
+      <button class="icon-btn" onclick="App.closeModal('modal-forward')">✕</button>
+    </div>
+    <div id="forward-chat-list" class="user-list"></div>
+  </div>
 </div>
 
 <div id="toast" class="toast hidden"></div>
 
+<!-- ─── SCRIPTS ─────────────────────────────────────────────────────────────── -->
 <script>
-// Captcha
+/* ── Captcha ── */
 let _ca=0,_cb=0,_cop='+';
-function refreshCaptcha(){const ops=['+','-','×'];_cop=ops[Math.floor(Math.random()*ops.length)];_ca=Math.floor(Math.random()*12)+1;_cb=Math.floor(Math.random()*12)+1;if(_cop==='-'&&_cb>_ca){const t=_ca;_ca=_cb;_cb=t;}document.getElementById('captcha-q').textContent=`${_ca} ${_cop} ${_cb} =`;document.getElementById('captcha-answer').value='';}
-function checkCaptcha(){const ans=parseInt(document.getElementById('captcha-answer').value);const ok=_cop==='+'?_ca+_cb:_cop==='-'?_ca-_cb:_ca*_cb;return ans===ok;}
+function refreshCaptcha(){
+  const ops=['+','-','×'];
+  _cop=ops[Math.floor(Math.random()*ops.length)];
+  _ca=Math.floor(Math.random()*12)+1;
+  _cb=Math.floor(Math.random()*12)+1;
+  if(_cop==='-'&&_cb>_ca){const t=_ca;_ca=_cb;_cb=t;}
+  document.getElementById('captcha-q').textContent=`${_ca} ${_cop} ${_cb} =`;
+  const a=document.getElementById('captcha-answer');
+  if(a)a.value='';
+}
+function checkCaptcha(){
+  const ans=parseInt(document.getElementById('captcha-answer')?.value);
+  const ok=_cop==='+'?_ca+_cb:_cop==='-'?_ca-_cb:_ca*_cb;
+  return ans===ok;
+}
 window.addEventListener('DOMContentLoaded',refreshCaptcha);
-// PWA
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;setTimeout(()=>document.getElementById('install-banner').classList.add('show'),5000);});
-document.getElementById('install-btn').addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');});
-if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+
+/* ── Desktop QR ── */
+(function(){
+  const url=location.origin;
+  const el=document.getElementById('dg-url');
+  if(el)el.textContent=url;
+  if(window.innerWidth>=600){
+    const canvas=document.getElementById('qr-canvas');
+    if(canvas){
+      const img=document.createElement('img');
+      img.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(url)+'&bgcolor=FFFFFF&color=141414&qzone=1';
+      img.width=200;img.height=200;img.alt='QR Code';
+      img.onerror=()=>{img.alt='Scan: '+url;};
+      canvas.parentNode.replaceChild(img,canvas);
+    }
+  }
+})();
+
+/* ── PWA install ── */
+let _deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_deferredPrompt=e;});
+if('serviceWorker'in navigator)
+  navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
+
 <script src="/js/api.js"></script>
 <script src="/js/ws.js"></script>
 <script src="/js/ui.js"></script>
 <script src="/js/app.js"></script>
-<script>
-// On desktop, make modals/overlays position inside the app frame
-if (window.innerWidth >= 600) {
-  document.addEventListener('DOMContentLoaded', () => {
-    const app = document.getElementById('app');
-    // Move modal container reference to app for proper stacking
-    const toast = document.getElementById('toast');
-    const picker = document.getElementById('reaction-picker');
-    if (toast) app?.appendChild(toast);
-    if (picker) app?.appendChild(picker);
-  });
-}
-</script>
-<style>
-@media(min-width:600px){
-  body::after {
-    content: 'OpenWave — Open it on your phone for the best experience';
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    color: rgba(255,255,255,.3);
-    white-space: nowrap;
-    pointer-events: none;
-    font-family: -apple-system, sans-serif;
-  }
-}
-</style>
 </body>
 </html>

@@ -1,27 +1,95 @@
-/* OpenWave — Premium Dark Theme */
+/* ═══════════════════════════════════════════════════════════════════════════
+   OpenWave — Twitter × Netflix Design System
+   Netflix:  #E50914 (red)  #141414 (black)  #FFFFFF (white)
+   Twitter:  #1D9BF0 (blue) #0F1419 (dark)   #EFF3F4 (light bg)
+   Combined: Deep black canvas, Netflix-red primary, Twitter-blue secondary
+═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --accent:#7C3AED;--accent-2:#A78BFA;--accent-3:#EDE9FE;--accent-glow:rgba(124,58,237,.2);
-  --gold:#F59E0B;--gold-light:#FCD34D;
-  --bg:#FAFAF9;--sidebar:#FFFFFF;--header:#FFFFFF;--chat-bg:#F0ECE6;--card:#FFFFFF;
-  --input:#F3F0EC;--hover:#F7F5F2;--active:#EDE9FE;--border:#E5E1D8;--border-sub:rgba(0,0,0,.04);
-  --text:#18161A;--text-2:#4A4550;--muted:#9B94A3;--link:#7C3AED;
-  --bubble-in:#FFFFFF;--bubble-in-t:#18161A;--bubble-out:#7C3AED;--bubble-out-t:#FFFFFF;
-  --meta-in:#9B94A3;--meta-out:rgba(255,255,255,.6);
-  --date-bg:rgba(255,255,255,.9);--date-t:#7A7280;--online:#10B981;--danger:#EF4444;
-  --success-bg:#D1FAE5;--success:#065F46;--react-bg:#F3F0EC;
-  --shadow-xs:0 1px 2px rgba(0,0,0,.06);--shadow-sm:0 2px 8px rgba(0,0,0,.08);
-  --shadow-md:0 8px 24px rgba(0,0,0,.10);--shadow-lg:0 20px 60px rgba(0,0,0,.14);
+  /* Brand */
+  --red:          #E50914;
+  --red-hover:    #F40612;
+  --red-dark:     #B20710;
+  --blue:         #1D9BF0;
+  --blue-hover:   #1A8CD8;
+  --gold:         #FFD700;
+
+  /* Semantic aliases */
+  --accent:       #E50914;   /* Netflix red = primary action */
+  --accent-2:     #FF4D57;
+  --accent-3:     #2D0507;
+  --accent-glow:  rgba(229,9,20,.28);
+  --link:         #1D9BF0;   /* Twitter blue = links & info */
+
+  /* Surfaces — Netflix palette */
+  --bg:           #141414;
+  --sidebar:      #181818;
+  --header:       #181818;
+  --chat-bg:      #0D0D0D;
+  --card:         #1F1F1F;
+  --input:        #2A2A2A;
+  --hover:        #252525;
+  --active:       #2D0507;
+  --border:       rgba(255,255,255,.10);
+  --border-sub:   rgba(255,255,255,.04);
+
+  /* Text */
+  --text:         #FFFFFF;
+  --text-2:       #E5E5E5;
+  --muted:        #808080;
+
+  /* Bubbles */
+  --bubble-in:    #2A2A2A;
+  --bubble-in-t:  #FFFFFF;
+  --meta-in:      #808080;
+  --meta-out:     rgba(255,255,255,.65);
+  --date-bg:      rgba(26,26,26,.96);
+  --date-t:       #808080;
+
+  /* Status */
+  --online:       #00BA7C;   /* Twitter green */
+  --danger:       #F4212E;
+  --success-bg:   #021810;
+  --success:      #00BA7C;
+  --react-bg:     #2A2A2A;
+
+  /* Shadows */
+  --shadow-xs:    0 1px 3px rgba(0,0,0,.7);
+  --shadow-sm:    0 2px 10px rgba(0,0,0,.75);
+  --shadow-md:    0 8px 28px rgba(0,0,0,.85);
+  --shadow-lg:    0 24px 64px rgba(0,0,0,.92);
 }
-[data-theme="dark"] {
-  --accent:#8B5CF6;--accent-2:#C4B5FD;--accent-3:#1E1B4B;--accent-glow:rgba(139,92,246,.25);
-  --gold:#F59E0B;--gold-light:#FCD34D;
-  --bg:#0A0A0F;--sidebar:#100F17;--header:#13121C;--chat-bg:#0A0A0F;--card:#13121C;
-  --input:#1C1A28;--hover:#1C1A28;--active:#2D1F5E;--border:rgba(255,255,255,.07);--border-sub:rgba(255,255,255,.03);
-  --text:#F0EDF8;--text-2:#C4BDD4;--muted:#6B6080;--link:#A78BFA;
-  --bubble-in:#1C1A28;--bubble-in-t:#F0EDF8;--bubble-out:#5B21B6;--bubble-out-t:#FFFFFF;
-  --meta-in:#6B6080;--meta-out:rgba(255,255,255,.5);
-  --date-bg:rgba(19,18,28,.95);--date-t:#6B6080;--online:#10B981;--danger:#F87171;
-  --success-bg:#064E3B;--success:#6EE7B7;--react-bg:#1C1A28;
-  --shadow-xs:0 1px 2px rgba(0,0,0,.4);--shadow-sm:0 2px 8px rgba(0,0,0,.5);
-  --shadow-md:0 8px 24px rgba(0,0,0,.6);--shadow-lg:0 20px 60px rgba(0,0,0,.7);
+[data-theme="light"] {
+  --accent:       #E50914;
+  --accent-2:     #FF4D57;
+  --accent-3:     #FFF1F1;
+  --accent-glow:  rgba(229,9,20,.14);
+  --link:         #1D9BF0;
+  --bg:           #F7F9F9;
+  --sidebar:      #FFFFFF;
+  --header:       #FFFFFF;
+  --chat-bg:      #EFF3F4;
+  --card:         #FFFFFF;
+  --input:        #EFF3F4;
+  --hover:        #F7F9F9;
+  --active:       #FFF1F1;
+  --border:       #EFF3F4;
+  --border-sub:   rgba(0,0,0,.04);
+  --text:         #0F1419;
+  --text-2:       #536471;
+  --muted:        #536471;
+  --bubble-in:    #FFFFFF;
+  --bubble-in-t:  #0F1419;
+  --meta-in:      #536471;
+  --meta-out:     rgba(255,255,255,.80);
+  --date-bg:      rgba(255,255,255,.94);
+  --date-t:       #536471;
+  --online:       #00BA7C;
+  --danger:       #F4212E;
+  --success-bg:   #E8F8F0;
+  --success:      #007A4D;
+  --react-bg:     #EFF3F4;
+  --shadow-xs:    0 1px 3px rgba(0,0,0,.08);
+  --shadow-sm:    0 2px 10px rgba(0,0,0,.10);
+  --shadow-md:    0 8px 28px rgba(0,0,0,.12);
+  --shadow-lg:    0 24px 64px rgba(0,0,0,.16);
 }

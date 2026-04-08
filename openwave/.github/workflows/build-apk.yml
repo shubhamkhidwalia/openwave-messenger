@@ -1,0 +1,54 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+    paths: ['frontend/**', 'capacitor.config.json']
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with: { node-version: '20' }
+    - uses: actions/setup-java@v4
+      with: { java-version: '17', distribution: 'temurin' }
+    - uses: android-actions/setup-android@v3
+
+    - name: Install Capacitor
+      run: npm install @capacitor/core @capacitor/cli @capacitor/android
+
+    - name: Create capacitor config
+      run: |
+        cat > capacitor.config.json << 'JSON'
+        {
+          "appId": "com.shubhamkhidwalia.openwave",
+          "appName": "OpenWave",
+          "webDir": "www",
+          "server": {
+            "url": "https://openwave-messenger-production.up.railway.app",
+            "cleartext": false
+          },
+          "plugins": {
+            "SplashScreen": { "launchShowDuration": 2000, "backgroundColor": "#141414" },
+            "StatusBar": { "style": "DARK", "backgroundColor": "#141414" }
+          }
+        }
+        JSON
+        mkdir -p www
+        echo '<html><body style="background:#141414;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif"><p style="color:#808080">Loading OpenWave…</p></body></html>' > www/index.html
+
+    - name: Build APK
+      run: |
+        npx cap add android
+        npx cap sync android
+        cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: OpenWave-APK
+        path: android/app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 30
